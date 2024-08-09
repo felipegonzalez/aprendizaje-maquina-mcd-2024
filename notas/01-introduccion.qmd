@@ -59,7 +59,6 @@ si el crédito total es mayor al 50\% del ingreso anual, declinar el préstamo, 
  construidas "a mano":
 
 - Cuando conjuntos de reglas creadas a mano se desempeñan mal (por ejemplo, para otorgar créditos, reconocer caracteres, etc.)
-
 - Reglas creadas a mano pueden ser difíciles de mantener (por ejemplo, un corrector
 ortográfico), pues para problemas interesantes muchas veces se requieren grandes
 cantidades de reglas. Por ejemplo: ¿qué búsquedas www se enfocan en
