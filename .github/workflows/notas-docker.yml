@@ -1,0 +1,36 @@
+name: Docker Image CI
+
+env:
+  GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-image:
+    runs-on: ubuntu-latest
+    container: felipexgonzalez/am-2024-amd64:latest
+    steps:
+      - name: Install probably
+        run: |
+          remotes::install_github("https://github.com/tidymodels/probably/", upgrade = "always", force = TRUE)
+        shell: Rscript {0}
+      - uses: actions/checkout@v4
+      - name: Render book
+        # Add any command line argument needed
+        run: |
+          quarto render notas/ --to html
+      - name: install rsync
+        run: |
+          apt update && apt install -y rsync
+      - name: Deploy 🚀
+        # only deploy when push to main
+        if: github.event_name != 'pull_request'
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          # The branch the action should deploy to.
+          branch: gh-pages
+          # The folder the action should deploy. Adapt if you changed in Quarto config
+          folder: notas/_book
