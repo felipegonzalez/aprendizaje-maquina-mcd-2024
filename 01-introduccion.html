@@ -245,8 +245,15 @@ window.Quarto = {
 
 <section id="qué-es-aprendizaje-de-máquina-machine-learning" class="level2" data-number="1.1">
 <h2 data-number="1.1" class="anchored" data-anchor-id="qué-es-aprendizaje-de-máquina-machine-learning"><span class="header-section-number">1.1</span> ¿Qué es aprendizaje de máquina (machine learning)?</h2>
-<p>Métodos <strong>computacionales</strong> para <strong>aprender de datos</strong> con el fin de producir reglas para mejorar el <strong>desempeño</strong> en alguna tarea o toma de decisión.</p>
+<p>Métodos <strong>computacionales</strong> para <strong>aprender de datos</strong> con el fin de producir reglas para mejorar el <strong>desempeño</strong> en alguna tarea o toma de decisión. Nos interesan principalmente aquellas tareas o decisiones que se toman de manera repetida y donde el costo de cada error es relativamente bajo.</p>
 <p>En este curso nos enfocamos en las tareas de <em>aprendizaje supervisado</em> (predecir o estimar una variable respuesta a partir de datos de entrada) y <em>aprendizaje no supervisado</em> (describir estructuras interesantes en datos, donde no necesariamente hay una respuesta que predecir). Existe también <em>aprendizaje por refuerzo</em>, en donde buscamos aprender a tomar decisiones en un entorno en donde la decisión afecta directa e inmediatamente al entorno.</p>
+<p>Las tareas más apropiadas para este enfoque, en general, son aquellas en donde:</p>
+<ul>
+<li>Existe una cantidad considerable de datos relevantes para aprender a ejecutar la tarea.</li>
+<li>El costo por errores al ejecutar la tarea es relativamente bajo (al menos comparado con alternativas).</li>
+<li>La tarea se repite de manera más o menos homogénea una cantidad grande de veces.</li>
+</ul>
+<p>Aunque es posible extender lo que veremos a contextos más generales, cuando uno de los tres anteriores requisitos no se cumple es mejor usar o complementar con otros enfoques.</p>
 <section id="ejemplos-de-tareas-de-aprendizaje" class="level4 unnumbered">
 <h4 class="unnumbered anchored" data-anchor-id="ejemplos-de-tareas-de-aprendizaje">Ejemplos de tareas de aprendizaje:</h4>
 <ul>
@@ -515,7 +522,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<p>La variable de condición de venta no podemos utilizarla para predecir, pues sólo la conocemos una vez que la venta se hace. Podemos ver en lugar de eso solamente las de condición normal. Consideramos además del área habitable, por ejemplo, la calidad general de terminados:</p>
+<p>La variable de condición de venta no podemos utilizarla para predecir, pues sólo la conocemos una vez que la venta se hace. Sin embargo, nos interesa principalemente entender qué sucede cuando las casas se venden en condiciones normales. Consideramos además del área habitable, por ejemplo, la calidad general de terminados:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(casas_entrena <span class="sc">|&gt;</span>  </span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>       <span class="fu">filter</span>(condicion_venta <span class="sc">==</span> <span class="st">"Normal"</span>) <span class="sc">|&gt;</span>  </span>
@@ -539,7 +546,7 @@ window.Quarto = {
 <div class="cell">
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(casas_entrena <span class="sc">|&gt;</span>  <span class="fu">filter</span>(condicion_venta <span class="sc">==</span> <span class="st">"Normal"</span>),</span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>       <span class="fu">aes</span>(<span class="at">x =</span> area_hab_m2, <span class="at">y =</span> precio_miles, <span class="at">colour =</span> area_garage_m2)) <span class="sc">+</span></span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span> <span class="fu">facet_wrap</span>(<span class="sc">~</span> (area_garage_m2 <span class="sc">==</span> <span class="dv">0</span>))</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span> <span class="fu">facet_wrap</span>(<span class="sc">~</span> (area_garage_m2 <span class="sc">&gt;</span> <span class="dv">0</span>))</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -549,8 +556,8 @@ window.Quarto = {
 </div>
 </div>
 <p>Y quizá podríamos proponer una fórmula simple de la forma:</p>
-<p><span class="math display">\[Precio = a_{calidad} + b_{calidad}\textrm{Area} + c \textrm{AreaGarage} + d\textrm{TieneGarage}\]</span></p>
-<p>donde los valores de <span class="math inline">\(a_{calidad}, b_{calidad}, c, d\)</span> podríamos estimarlos de los datos. La pendiente de Area dependende de la calificación de la calidad de los terminados.</p>
+<p><span class="math display">\[Precio = a[\textrm{Calidad}] + b[\textrm{Calidad}] + c\, \textrm{AreaGarage} + d\,\textrm{TieneGarage}\]</span></p>
+<p>donde los valores de <span class="math inline">\(a[\textrm{Calidad}] , b[\textrm{Calidad}], c, d\)</span> podríamos estimarlos de los datos. La pendiente de Area dependende de la calificación de la calidad de los terminados.</p>
 <p>Nuestro proceso comenzaría entonces construir los datos para usar en el modelo:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>receta_casas <span class="ot">&lt;-</span> </span>
@@ -1605,7 +1612,8 @@ Coefficients:
 <span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>       <span class="fu">bind_cols</span>(<span class="fu">predict</span>(ajuste, casas_prueba_f)),</span>
 <span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>       <span class="fu">aes</span>(<span class="at">x =</span> .pred, <span class="at">y =</span> precio_miles)) <span class="sc">+</span></span>
 <span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
-<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="at">colour =</span> <span class="st">"red"</span>) <span class="sc">+</span> <span class="fu">facet_wrap</span>(<span class="sc">~</span> condicion_venta)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="at">colour =</span> <span class="st">"red"</span>) <span class="sc">+</span> <span class="fu">facet_wrap</span>(<span class="sc">~</span> condicion_venta) <span class="sc">+</span></span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"Predicción (miles)"</span>) <span class="sc">+</span> <span class="fu">ylab</span>(<span class="st">"Precio (miles)"</span>)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">

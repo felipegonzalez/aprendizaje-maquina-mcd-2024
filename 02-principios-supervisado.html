@@ -323,6 +323,7 @@ Función de pérdida y error de predicción
 </div>
 </div>
 <p><strong>Observación</strong>: Para fijar ideas, podríamos usar por ejemplo la pérdida absoluta <span class="math inline">\(L(y, f(x)) = |y - f(x)|\)</span> o la pérdida cuadrática <span class="math inline">\(L(y, f(x)) = (y - f(x))^2\)</span>.</p>
+<p><strong>Observación</strong>: en aprendizaje automático, evaluación del error casi siempre es un error promedio. Esto es aceptable cuando no hay riesgos de errores graves, y cuando haremos un número considerable de predicciones en el futuro.</p>
 <p><strong>Al menos en teoría</strong>, podemos encontrar una <span class="math inline">\(f\)</span> que minimiza esta pérdida:</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
@@ -346,7 +347,7 @@ Predictor óptimo
 <li><p>Podemos ver nuestra tarea entonces como una de ajuste de curvas: queremos aproximar tan bien como sea posible la función <span class="math inline">\(f^*(x)\)</span>.</p></li>
 <li><p>No es simple decidir qué función de pérdida debería utilizarse para un problema dado de predicción.<br>
 Generalmente es una combinación de costos/beneficios del problema que tratamos, conveniencia computacional, y cómo se comportan los errores de nuestros predictores bajo distintas pérdidas. Sin embargo, al principio del proceso de construcción de modelos es mejor escoger una métrica simple que capture a grandes rasgos el comportamiento que esperamos (pérdida cuadrática, absoluta o logarítmica por ejemplo).</p></li>
-<li><p>Muchas veces es mejor considerar el problema de selección de la pérdida desde dos ángulos: el primero es computacional y de propiedades de la predicción, y el segundo tiene que ver con costos y beneficios asociados al problema que queremos resolver. Para el primero, alguna de las pérdidas estándar (como las que vimos arriba, cuadrática y absoluta, ologarítmica) son usualmente suficiente. En el segundo enfoque, el análisis es generalmente involucra más aspectos particulares del problema y generalmente tiene que hacerse de manera ad-hoc.</p></li>
+<li><p>Muchas veces es mejor considerar el problema de selección de la pérdida desde dos ángulos: el primero es computacional y de propiedades de la predicción, y el segundo tiene que ver con costos y beneficios asociados al problema que queremos resolver. Para el primero, alguna de las pérdidas estándar (como las que vimos arriba, cuadrática y absoluta, o logarítmica) son usualmente suficiente. En el segundo enfoque, el análisis es generalmente involucra más aspectos particulares del problema y generalmente tiene que hacerse de manera ad-hoc.</p></li>
 </ul>
 </section>
 <section id="ejemplo-1" class="level3 unnumbered">
@@ -905,18 +906,11 @@ Generalmente es una combinación de costos/beneficios del problema que tratamos,
 </div>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>eval_tbl <span class="ot">&lt;-</span> prueba_tbl <span class="sc">|&gt;</span>  </span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(preds_graf_tbl, <span class="at">by =</span> <span class="st">"x"</span>) </span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in left_join(prueba_tbl, preds_graf_tbl, by = "x"): Detected an unexpected many-to-many relationship between `x` and `y`.
-ℹ Row 1 of `x` matches multiple rows in `y`.
-ℹ Row 21 of `y` matches multiple rows in `x`.
-ℹ If a many-to-many relationship is expected, set `relationship =
-  "many-to-many"` to silence this warning.</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>resumen_tbl <span class="ot">&lt;-</span> eval_tbl <span class="sc">|&gt;</span>  </span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(predictor, tipo) <span class="sc">|&gt;</span> </span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rmse</span>(<span class="at">truth =</span> y, <span class="at">estimate =</span> .pred) </span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="fu">fmt_resumen</span>(resumen_tbl)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(preds_graf_tbl, <span class="at">by =</span> <span class="st">"x"</span>, <span class="at">relationship =</span> <span class="st">"many-to-many"</span>) </span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>resumen_tbl <span class="ot">&lt;-</span> eval_tbl <span class="sc">|&gt;</span>  </span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(predictor, tipo) <span class="sc">|&gt;</span> </span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rmse</span>(<span class="at">truth =</span> y, <span class="at">estimate =</span> .pred) </span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="fu">fmt_resumen</span>(resumen_tbl)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div id="lavhubulwh" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>#lavhubulwh table {
@@ -1417,36 +1411,36 @@ Generalmente es una combinación de costos/beneficios del problema que tratamos,
 <p><span class="math display">\[f_2(x) = \frac{1}{k}\sum_{x^{(i)} \in N_k(x)} y^{(i)}\]</span></p>
 <p>Primero obtendremos una muestra de entrenamiento:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">12</span>)</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>entrena_tbl <span class="ot">&lt;-</span> <span class="fu">genera_datos</span>(<span class="at">n =</span> <span class="dv">20</span>, <span class="at">tipo =</span> <span class="st">"entrena"</span>)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">12</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>entrena_tbl <span class="ot">&lt;-</span> <span class="fu">genera_datos</span>(<span class="at">n =</span> <span class="dv">20</span>, <span class="at">tipo =</span> <span class="st">"entrena"</span>)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>En nuestro ejemplo, en lugar de usar un número fijo de vecinos, utilizaremos 10% de los datos más cercanos al punto donde queremos predecir:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># modelo</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>modelo_kvecinos <span class="ot">&lt;-</span> <span class="fu">nearest_neighbor</span>(</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">neighbors =</span> <span class="fu">nrow</span>(entrena_tbl) <span class="sc">*</span> <span class="fl">0.1</span>, </span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">weight_func =</span> <span class="st">"gaussian"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_mode</span>(<span class="st">"regression"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_engine</span>(<span class="st">"kknn"</span>)</span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="co"># preprocesamiento</span></span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>receta <span class="ot">&lt;-</span> <span class="fu">recipe</span>(y <span class="sc">~</span> x, <span class="at">data =</span> entrena_tbl <span class="sc">|&gt;</span> <span class="fu">select</span>(x, y))</span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="co"># flujo</span></span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>flujo <span class="ot">&lt;-</span> <span class="fu">workflow</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_recipe</span>(receta) <span class="sc">|&gt;</span> </span>
-<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_model</span>(modelo_kvecinos)</span>
-<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Ajustamos flujo</span></span>
-<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>flujo_ajustado_vecinos <span class="ot">&lt;-</span> <span class="fu">fit</span>(flujo, entrena_tbl)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># modelo</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>modelo_kvecinos <span class="ot">&lt;-</span> <span class="fu">nearest_neighbor</span>(</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">neighbors =</span> <span class="fu">nrow</span>(entrena_tbl) <span class="sc">*</span> <span class="fl">0.1</span>, </span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">weight_func =</span> <span class="st">"gaussian"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_mode</span>(<span class="st">"regression"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_engine</span>(<span class="st">"kknn"</span>)</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="co"># preprocesamiento</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>receta <span class="ot">&lt;-</span> <span class="fu">recipe</span>(y <span class="sc">~</span> x, <span class="at">data =</span> entrena_tbl <span class="sc">|&gt;</span> <span class="fu">select</span>(x, y))</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="co"># flujo</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>flujo <span class="ot">&lt;-</span> <span class="fu">workflow</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_recipe</span>(receta) <span class="sc">|&gt;</span> </span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_model</span>(modelo_kvecinos)</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Ajustamos flujo</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>flujo_ajustado_vecinos <span class="ot">&lt;-</span> <span class="fu">fit</span>(flujo, entrena_tbl)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Hacemos predicciones y calculamos el error:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>eval_tbl <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(prueba_tbl, entrena_tbl) </span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>resumen_vmc_tbl <span class="ot">&lt;-</span> </span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">predict</span>(flujo_ajustado_vecinos, eval_tbl) <span class="sc">|&gt;</span> </span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">predictor =</span> <span class="st">"vecinos"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_cols</span>(eval_tbl) <span class="sc">|&gt;</span> </span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(predictor, tipo) <span class="sc">|&gt;</span> </span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rmse</span>(<span class="at">truth =</span> y, <span class="at">estimate =</span> .pred) </span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="fu">fmt_resumen</span>(resumen_vmc_tbl)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>eval_tbl <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(prueba_tbl, entrena_tbl) </span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>resumen_vmc_tbl <span class="ot">&lt;-</span> </span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">predict</span>(flujo_ajustado_vecinos, eval_tbl) <span class="sc">|&gt;</span> </span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">predictor =</span> <span class="st">"vecinos"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_cols</span>(eval_tbl) <span class="sc">|&gt;</span> </span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(predictor, tipo) <span class="sc">|&gt;</span> </span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rmse</span>(<span class="at">truth =</span> y, <span class="at">estimate =</span> .pred) </span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="fu">fmt_resumen</span>(resumen_vmc_tbl)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div id="wrmxuhwixm" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>#wrmxuhwixm table {
@@ -1922,16 +1916,16 @@ Generalmente es una combinación de costos/beneficios del problema que tratamos,
 </div>
 <p>El error de prueba, que es el que nos interesa hacer chico, es considerablemente grande. Si graficamos podemos ver el problema:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>preds_vmc <span class="ot">&lt;-</span> <span class="fu">predict</span>(flujo_ajustado_vecinos, años_x) <span class="sc">|&gt;</span> </span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_cols</span>(años_x) <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">predictor =</span> <span class="st">"vecinos"</span>)</span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>preds_graf_tbl <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(preds_vmc, preds_graf_tbl <span class="sc">|&gt;</span> </span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(predictor <span class="sc">==</span> <span class="st">"_óptimo"</span>))</span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>g_1 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(entrena_tbl, <span class="fu">aes</span>(<span class="at">x =</span> x)) <span class="sc">+</span></span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data =</span> preds_graf_tbl <span class="sc">|&gt;</span> <span class="fu">filter</span>(predictor <span class="sc">!=</span> <span class="st">"regla"</span>), </span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>            <span class="fu">aes</span>(<span class="at">y =</span> .pred, <span class="at">colour =</span> predictor), <span class="at">size =</span> <span class="fl">1.1</span>) <span class="sc">+</span></span>
-<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">y =</span> y), <span class="at">colour =</span> <span class="st">"red"</span>) <span class="sc">+</span></span>
-<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">subtitle =</span> <span class="st">"Óptimo vs ajustado"</span>)</span>
-<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>g_1</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>preds_vmc <span class="ot">&lt;-</span> <span class="fu">predict</span>(flujo_ajustado_vecinos, años_x) <span class="sc">|&gt;</span> </span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_cols</span>(años_x) <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">predictor =</span> <span class="st">"vecinos"</span>)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>preds_graf_tbl <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(preds_vmc, preds_graf_tbl <span class="sc">|&gt;</span> </span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(predictor <span class="sc">==</span> <span class="st">"_óptimo"</span>))</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>g_1 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(entrena_tbl, <span class="fu">aes</span>(<span class="at">x =</span> x)) <span class="sc">+</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data =</span> preds_graf_tbl <span class="sc">|&gt;</span> <span class="fu">filter</span>(predictor <span class="sc">!=</span> <span class="st">"regla"</span>), </span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>            <span class="fu">aes</span>(<span class="at">y =</span> .pred, <span class="at">colour =</span> predictor), <span class="at">size =</span> <span class="fl">1.1</span>) <span class="sc">+</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">y =</span> y), <span class="at">colour =</span> <span class="st">"red"</span>) <span class="sc">+</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">subtitle =</span> <span class="st">"Óptimo vs ajustado"</span>)</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>g_1</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -1952,25 +1946,25 @@ Generalmente es una combinación de costos/beneficios del problema que tratamos,
 <p>Ahora intentaremos con un modelo lineal. En este caso, utilizamos un predictor de la forma</p>
 <p><span class="math display">\[f(x) = \beta_0 + \beta_1x\]</span> Usamos la muestra de entrenamiento para encontrar la <span class="math inline">\(\beta_0\)</span> y <span class="math inline">\(\beta_1\)</span> que minimizar el error sobre los datos disponibles de entrenamiento, lo cual es un problema de optimización relativamente fácil. Usamos entonces <span class="math display">\[\hat{f}(x) =\hat{\beta}_0 + \hat{\beta}_1 x\]</span> para hacer nuestras predicciones.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>modelo_lineal <span class="ot">&lt;-</span> <span class="fu">linear_reg</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_mode</span>(<span class="st">"regression"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_engine</span>(<span class="st">"lm"</span>)</span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>flujo_lineal <span class="ot">&lt;-</span> <span class="fu">workflow</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_recipe</span>(receta) <span class="sc">|&gt;</span> </span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_model</span>(modelo_lineal)</span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Ajustamos</span></span>
-<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>flujo_ajustado_lineal <span class="ot">&lt;-</span> <span class="fu">fit</span>(flujo_lineal, entrena_tbl)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>modelo_lineal <span class="ot">&lt;-</span> <span class="fu">linear_reg</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_mode</span>(<span class="st">"regression"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_engine</span>(<span class="st">"lm"</span>)</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>flujo_lineal <span class="ot">&lt;-</span> <span class="fu">workflow</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_recipe</span>(receta) <span class="sc">|&gt;</span> </span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_model</span>(modelo_lineal)</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Ajustamos</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>flujo_ajustado_lineal <span class="ot">&lt;-</span> <span class="fu">fit</span>(flujo_lineal, entrena_tbl)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Hacemos predicciones y calculamos el error:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>eval_tbl <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(prueba_tbl, entrena_tbl) </span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>resumen_lineal_tbl <span class="ot">&lt;-</span> </span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">predict</span>(flujo_ajustado_lineal, eval_tbl) <span class="sc">|&gt;</span> </span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">predictor =</span> <span class="st">"lineal"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_cols</span>(eval_tbl) <span class="sc">|&gt;</span> </span>
-<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(predictor, tipo) <span class="sc">|&gt;</span> </span>
-<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rmse</span>(<span class="at">truth =</span> y, <span class="at">estimate =</span> .pred) </span>
-<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a><span class="fu">fmt_resumen</span>(<span class="fu">bind_rows</span>(resumen_vmc_tbl, resumen_lineal_tbl))</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>eval_tbl <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(prueba_tbl, entrena_tbl) </span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>resumen_lineal_tbl <span class="ot">&lt;-</span> </span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">predict</span>(flujo_ajustado_lineal, eval_tbl) <span class="sc">|&gt;</span> </span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">predictor =</span> <span class="st">"lineal"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_cols</span>(eval_tbl) <span class="sc">|&gt;</span> </span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(predictor, tipo) <span class="sc">|&gt;</span> </span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rmse</span>(<span class="at">truth =</span> y, <span class="at">estimate =</span> .pred) </span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="fu">fmt_resumen</span>(<span class="fu">bind_rows</span>(resumen_vmc_tbl, resumen_lineal_tbl))</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div id="jteglcpbqe" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>#jteglcpbqe table {
@@ -2452,15 +2446,15 @@ Generalmente es una combinación de costos/beneficios del problema que tratamos,
 </div>
 <p>Y el desempeño de este método es mejor que vecinos más cercanos (ver columna de prueba).</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>preds_1 <span class="ot">&lt;-</span> <span class="fu">predict</span>(flujo_ajustado_lineal, <span class="fu">tibble</span>(<span class="at">x =</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">17</span>)) <span class="sc">|&gt;</span> </span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_cols</span>(<span class="fu">tibble</span>(<span class="at">x =</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">17</span>, <span class="at">predictor =</span> <span class="st">"lineal"</span>))</span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>preds_graf_tbl <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(preds_1, preds_graf_tbl)</span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>g_1 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(datos_tbl, <span class="fu">aes</span>(<span class="at">x =</span> x)) <span class="sc">+</span></span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">y =</span> y), <span class="at">colour =</span> <span class="st">"red"</span>, <span class="at">alpha =</span> <span class="fl">0.1</span>) <span class="sc">+</span></span>
-<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data =</span> preds_graf_tbl <span class="sc">|&gt;</span> <span class="fu">filter</span>(predictor <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"_óptimo"</span>, <span class="st">"lineal"</span>)), </span>
-<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>            <span class="fu">aes</span>(<span class="at">y =</span> .pred, <span class="at">colour =</span> predictor), <span class="at">size =</span> <span class="fl">1.1</span>) <span class="sc">+</span></span>
-<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">subtitle =</span> <span class="st">"Óptimo vs ajustado"</span>)</span>
-<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>g_1</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>preds_1 <span class="ot">&lt;-</span> <span class="fu">predict</span>(flujo_ajustado_lineal, <span class="fu">tibble</span>(<span class="at">x =</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">17</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_cols</span>(<span class="fu">tibble</span>(<span class="at">x =</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">17</span>, <span class="at">predictor =</span> <span class="st">"lineal"</span>))</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>preds_graf_tbl <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(preds_1, preds_graf_tbl)</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>g_1 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(datos_tbl, <span class="fu">aes</span>(<span class="at">x =</span> x)) <span class="sc">+</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">y =</span> y), <span class="at">colour =</span> <span class="st">"red"</span>, <span class="at">alpha =</span> <span class="fl">0.1</span>) <span class="sc">+</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data =</span> preds_graf_tbl <span class="sc">|&gt;</span> <span class="fu">filter</span>(predictor <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"_óptimo"</span>, <span class="st">"lineal"</span>)), </span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>            <span class="fu">aes</span>(<span class="at">y =</span> .pred, <span class="at">colour =</span> predictor), <span class="at">size =</span> <span class="fl">1.1</span>) <span class="sc">+</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">subtitle =</span> <span class="st">"Óptimo vs ajustado"</span>)</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>g_1</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -2500,7 +2494,11 @@ Generalmente es una combinación de costos/beneficios del problema que tratamos,
 <p>En nuestros dos ejemplos, intuímos que vecinos más cercanos sufre más de error de estimación y regresión lineal de sesgo de especificación, lo cual verificamos más adelante.</p>
 <p>Podemos refinar aún más nuestra descomposición considerando qué pasa con distintas muestras del mismo tamaño para entender mejor el error de estimación. Si consideramos el valor esperado de nuestra predicción a lo largo de las posibles muestras <span class="math inline">\(\mathcal L\)</span> que podemos extraer, descomponemos el segundo término como:</p>
 <p><span class="math display">\[\hat{f_{\mathcal{L}}}(\mathbf{x}) - f_{\lim}(\mathbf{x})  = \hat{f_{\mathcal{L}}}(\mathbf{x}) -  E(\hat{f_{\mathcal{L}}}(\mathbf{x})) + E(\hat{f_{\mathcal{L}}}(\mathbf{x})) - f_{\lim}(\mathbf{x}) \]</span> donde el valor esperado es sobre todas las muestras de entrenamiento de un tamaño fijo <span class="math inline">\(n\)</span> que podríamos obtener. El primer término puede llamarse variabilidad, mientras que el segundo es el sesgo que obtenemos al usar una muestra <span class="math inline">\(n\)</span> finita (para algunos métodos, el segundo término puede ser igual a cero). Desde este punto de vista, podemos hacer también la descomposición:</p>
-<p><span class="math display">\[\mathbf{y} - \hat{f_{\mathcal{L}}}(\mathbf{x}) = \underbrace{f^* (\mathbf{x}) - f_{lim}(\mathbf{x})}_\text{sesgo-especificacion}  + \underbrace{f_{lim}(\mathbf{x}) - E(\hat{f_{\mathcal{L}}}(\mathbf{x}))}_\text{sesgo-estimacion} +   \underbrace{E(\hat{f_{\mathcal{L}}}(\mathbf{x})) - \hat{f_{\mathcal{L}}}(\mathbf{x})}_\text{variabilidad} + \underbrace{ \mathbf{y} - f^*(\mathbf{x})}_\text{irreducible}.\]</span></p>
+<p><span class="math display">\[
+\begin{align}
+\mathbf{y} - \hat{f_{\mathcal{L}}}(\mathbf{x}) = &amp;  \underbrace{f^* (\mathbf{x}) - f_{lim}(\mathbf{x})}_\text{sesgo-especificacion}  +  \\ &amp;\underbrace{f_{lim}(\mathbf{x}) - E(\hat{f_{\mathcal{L}}}(\mathbf{x}))}_\text{sesgo-estimacion} +  \underbrace{E(\hat{f_{\mathcal{L}}}(\mathbf{x})) - \hat{f_{\mathcal{L}}}(\mathbf{x})}_\text{variabilidad} + \\  &amp;\underbrace{ \mathbf{y} - f^*(\mathbf{x})}_\text{irreducible}.
+\end{align}
+\]</span></p>
 <p>Tenemos entonces cuatro términos:</p>
 <ul>
 <li>El sesgo de especificación mide la capacidad del modelo de utilizar datos de muestras cada vez más grandes. No depende de una muestra particular ni su tamaño.</li>
@@ -2528,37 +2526,37 @@ Descomposición sesgo-varianza
 <h2 data-number="2.5" class="anchored" data-anchor-id="ejemplo-fuentes-de-error"><span class="header-section-number">2.5</span> Ejemplo: fuentes de error</h2>
 <p>Vamos a ver qué sucede con nuestros dos métodos si utilizamos una muestra grande:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>muestra_grande_tbl <span class="ot">&lt;-</span> <span class="fu">sample_n</span>(poblacion_tbl, <span class="dv">10000</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">tipo =</span> <span class="st">"entrena"</span>)</span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>modelo_kvecinos <span class="ot">&lt;-</span> <span class="fu">nearest_neighbor</span>(</span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">neighbors =</span> <span class="fu">nrow</span>(muestra_grande_tbl) <span class="sc">*</span> <span class="fl">0.10</span>, </span>
-<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">weight_func =</span> <span class="st">"gaussian"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_mode</span>(<span class="st">"regression"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_engine</span>(<span class="st">"kknn"</span>)</span>
-<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Ajustamos (no es necesario usar la población completa para este ejemplo)</span></span>
-<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>flujo_vecinos <span class="ot">&lt;-</span> <span class="fu">workflow</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_recipe</span>(receta) <span class="sc">|&gt;</span> </span>
-<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_model</span>(modelo_kvecinos)</span>
-<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>flujo_ajustado_vecinos_limite <span class="ot">&lt;-</span> <span class="fu">fit</span>(flujo_vecinos, muestra_grande_tbl)</span>
-<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>flujo_ajustado_lineal_limite <span class="ot">&lt;-</span> <span class="fu">fit</span>(flujo_lineal, muestra_grande_tbl)</span>
-<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>eval_tbl <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(prueba_tbl, muestra_grande_tbl)</span>
-<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>resumen_vecinos_lim_tbl <span class="ot">&lt;-</span> </span>
-<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">predict</span>(flujo_ajustado_vecinos_limite, eval_tbl) <span class="sc">|&gt;</span> </span>
-<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">predictor =</span> <span class="st">"vecinos_limite"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_cols</span>(eval_tbl) <span class="sc">|&gt;</span> </span>
-<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(predictor, tipo) <span class="sc">|&gt;</span> </span>
-<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rmse</span>(<span class="at">truth =</span> y, <span class="at">estimate =</span> .pred) </span>
-<span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a>resumen_lineal_lim_tbl <span class="ot">&lt;-</span> </span>
-<span id="cb18-23"><a href="#cb18-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">predict</span>(flujo_ajustado_lineal_limite, eval_tbl) <span class="sc">|&gt;</span> </span>
-<span id="cb18-24"><a href="#cb18-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">predictor =</span> <span class="st">"lineal_limite"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb18-25"><a href="#cb18-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_cols</span>(eval_tbl) <span class="sc">|&gt;</span> </span>
-<span id="cb18-26"><a href="#cb18-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(predictor, tipo) <span class="sc">|&gt;</span> </span>
-<span id="cb18-27"><a href="#cb18-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rmse</span>(<span class="at">truth =</span> y, <span class="at">estimate =</span> .pred) </span>
-<span id="cb18-28"><a href="#cb18-28" aria-hidden="true" tabindex="-1"></a><span class="fu">fmt_resumen</span>(<span class="fu">bind_rows</span>(resumen_vmc_tbl, </span>
-<span id="cb18-29"><a href="#cb18-29" aria-hidden="true" tabindex="-1"></a>  resumen_lineal_tbl, </span>
-<span id="cb18-30"><a href="#cb18-30" aria-hidden="true" tabindex="-1"></a>  resumen_vecinos_lim_tbl, </span>
-<span id="cb18-31"><a href="#cb18-31" aria-hidden="true" tabindex="-1"></a>  resumen_lineal_lim_tbl) <span class="sc">|&gt;</span> <span class="fu">arrange</span>(predictor))</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>muestra_grande_tbl <span class="ot">&lt;-</span> <span class="fu">sample_n</span>(poblacion_tbl, <span class="dv">10000</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">tipo =</span> <span class="st">"entrena"</span>)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>modelo_kvecinos <span class="ot">&lt;-</span> <span class="fu">nearest_neighbor</span>(</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">neighbors =</span> <span class="fu">nrow</span>(muestra_grande_tbl) <span class="sc">*</span> <span class="fl">0.10</span>, </span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">weight_func =</span> <span class="st">"gaussian"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_mode</span>(<span class="st">"regression"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_engine</span>(<span class="st">"kknn"</span>)</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Ajustamos (no es necesario usar la población completa para este ejemplo)</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>flujo_vecinos <span class="ot">&lt;-</span> <span class="fu">workflow</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_recipe</span>(receta) <span class="sc">|&gt;</span> </span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_model</span>(modelo_kvecinos)</span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>flujo_ajustado_vecinos_limite <span class="ot">&lt;-</span> <span class="fu">fit</span>(flujo_vecinos, muestra_grande_tbl)</span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>flujo_ajustado_lineal_limite <span class="ot">&lt;-</span> <span class="fu">fit</span>(flujo_lineal, muestra_grande_tbl)</span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>eval_tbl <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(prueba_tbl, muestra_grande_tbl)</span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>resumen_vecinos_lim_tbl <span class="ot">&lt;-</span> </span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">predict</span>(flujo_ajustado_vecinos_limite, eval_tbl) <span class="sc">|&gt;</span> </span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">predictor =</span> <span class="st">"vecinos_limite"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_cols</span>(eval_tbl) <span class="sc">|&gt;</span> </span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(predictor, tipo) <span class="sc">|&gt;</span> </span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rmse</span>(<span class="at">truth =</span> y, <span class="at">estimate =</span> .pred) </span>
+<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a>resumen_lineal_lim_tbl <span class="ot">&lt;-</span> </span>
+<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">predict</span>(flujo_ajustado_lineal_limite, eval_tbl) <span class="sc">|&gt;</span> </span>
+<span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">predictor =</span> <span class="st">"lineal_limite"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb16-25"><a href="#cb16-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_cols</span>(eval_tbl) <span class="sc">|&gt;</span> </span>
+<span id="cb16-26"><a href="#cb16-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(predictor, tipo) <span class="sc">|&gt;</span> </span>
+<span id="cb16-27"><a href="#cb16-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rmse</span>(<span class="at">truth =</span> y, <span class="at">estimate =</span> .pred) </span>
+<span id="cb16-28"><a href="#cb16-28" aria-hidden="true" tabindex="-1"></a><span class="fu">fmt_resumen</span>(<span class="fu">bind_rows</span>(resumen_vmc_tbl, </span>
+<span id="cb16-29"><a href="#cb16-29" aria-hidden="true" tabindex="-1"></a>  resumen_lineal_tbl, </span>
+<span id="cb16-30"><a href="#cb16-30" aria-hidden="true" tabindex="-1"></a>  resumen_vecinos_lim_tbl, </span>
+<span id="cb16-31"><a href="#cb16-31" aria-hidden="true" tabindex="-1"></a>  resumen_lineal_lim_tbl) <span class="sc">|&gt;</span> <span class="fu">arrange</span>(predictor))</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div id="fkmyioypct" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>#fkmyioypct table {
@@ -3052,23 +3050,23 @@ Descomposición sesgo-varianza
 </div>
 <p>¿Qué patrones ves en esta tabla? Podemos también graficar para entender mejor qué está pasando:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>preds_1 <span class="ot">&lt;-</span> <span class="fu">predict</span>(flujo_ajustado_vecinos_limite, <span class="fu">tibble</span>(<span class="at">x =</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">17</span>)) <span class="sc">|&gt;</span> </span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_cols</span>(<span class="fu">tibble</span>(<span class="at">x =</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">17</span>, <span class="at">predictor =</span> <span class="st">"vecinos_limite"</span>))</span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>preds_2 <span class="ot">&lt;-</span> <span class="fu">predict</span>(flujo_ajustado_lineal_limite, <span class="fu">tibble</span>(<span class="at">x =</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">17</span>)) <span class="sc">|&gt;</span> </span>
-<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_cols</span>(<span class="fu">tibble</span>(<span class="at">x =</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">17</span>, <span class="at">predictor =</span> <span class="st">"lineal_limite"</span>))</span>
-<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>preds_graf_tbl <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(preds_1, preds_2, preds_graf_tbl) <span class="sc">|&gt;</span> </span>
-<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">predictor =</span> <span class="fu">factor</span>(predictor))</span>
-<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>g_1 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(datos_tbl, <span class="fu">aes</span>(<span class="at">x =</span> x)) <span class="sc">+</span></span>
-<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data =</span> preds_graf_tbl <span class="sc">|&gt;</span> </span>
-<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>            <span class="fu">filter</span>(<span class="fu">str_detect</span>(predictor, <span class="st">"vecinos|_óptimo"</span>)), </span>
-<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>            <span class="fu">aes</span>(<span class="at">y =</span> .pred, <span class="at">colour =</span> predictor), <span class="at">size =</span> <span class="fl">1.1</span>) <span class="sc">+</span></span>
-<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">subtitle =</span> <span class="st">"Vecinos"</span>) </span>
-<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>g_2 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(datos_tbl, <span class="fu">aes</span>(<span class="at">x =</span> x)) <span class="sc">+</span></span>
-<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data =</span> preds_graf_tbl <span class="sc">|&gt;</span> </span>
-<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>            <span class="fu">filter</span>(<span class="fu">str_detect</span>(predictor, <span class="st">"lineal|_óptimo"</span>)), </span>
-<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>            <span class="fu">aes</span>(<span class="at">y =</span> .pred, <span class="at">colour =</span> predictor), <span class="at">size =</span> <span class="fl">1.1</span>) <span class="sc">+</span></span>
-<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">subtitle =</span> <span class="st">"Lineal"</span>) </span>
-<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>g_1 <span class="sc">+</span> g_2 <span class="sc">+</span> <span class="fu">plot_layout</span>(<span class="at">guides =</span> <span class="st">'collect'</span>)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>preds_1 <span class="ot">&lt;-</span> <span class="fu">predict</span>(flujo_ajustado_vecinos_limite, <span class="fu">tibble</span>(<span class="at">x =</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">17</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_cols</span>(<span class="fu">tibble</span>(<span class="at">x =</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">17</span>, <span class="at">predictor =</span> <span class="st">"vecinos_limite"</span>))</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>preds_2 <span class="ot">&lt;-</span> <span class="fu">predict</span>(flujo_ajustado_lineal_limite, <span class="fu">tibble</span>(<span class="at">x =</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">17</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_cols</span>(<span class="fu">tibble</span>(<span class="at">x =</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">17</span>, <span class="at">predictor =</span> <span class="st">"lineal_limite"</span>))</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>preds_graf_tbl <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(preds_1, preds_2, preds_graf_tbl) <span class="sc">|&gt;</span> </span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">predictor =</span> <span class="fu">factor</span>(predictor))</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>g_1 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(datos_tbl, <span class="fu">aes</span>(<span class="at">x =</span> x)) <span class="sc">+</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data =</span> preds_graf_tbl <span class="sc">|&gt;</span> </span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>            <span class="fu">filter</span>(<span class="fu">str_detect</span>(predictor, <span class="st">"vecinos|_óptimo"</span>)), </span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>            <span class="fu">aes</span>(<span class="at">y =</span> .pred, <span class="at">colour =</span> predictor), <span class="at">size =</span> <span class="fl">1.1</span>) <span class="sc">+</span></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">subtitle =</span> <span class="st">"Vecinos"</span>) </span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>g_2 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(datos_tbl, <span class="fu">aes</span>(<span class="at">x =</span> x)) <span class="sc">+</span></span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data =</span> preds_graf_tbl <span class="sc">|&gt;</span> </span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>            <span class="fu">filter</span>(<span class="fu">str_detect</span>(predictor, <span class="st">"lineal|_óptimo"</span>)), </span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>            <span class="fu">aes</span>(<span class="at">y =</span> .pred, <span class="at">colour =</span> predictor), <span class="at">size =</span> <span class="fl">1.1</span>) <span class="sc">+</span></span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">subtitle =</span> <span class="st">"Lineal"</span>) </span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>g_1 <span class="sc">+</span> g_2 <span class="sc">+</span> <span class="fu">plot_layout</span>(<span class="at">guides =</span> <span class="st">'collect'</span>)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -3108,32 +3106,32 @@ Complejidad y error de predicción
 <h2 data-number="2.6" class="anchored" data-anchor-id="agregando-más-información-y-error-irreducible"><span class="header-section-number">2.6</span> Agregando más información y error irreducible</h2>
 <p>Podemos ver qué sucede cuando tenemos disponibles más variables relevantes. En este caso, probaremos con dos entradas:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>genera_datos_2 <span class="ot">&lt;-</span> <span class="cf">function</span>(<span class="at">n =</span> <span class="dv">500</span>, <span class="at">tipo =</span> <span class="cn">NULL</span>){</span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  dat_tbl <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">nse =</span> <span class="fu">runif</span>(n, <span class="dv">0</span>, <span class="dv">100</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(estudio_años <span class="ot">=</span> <span class="fu">floor</span>(<span class="fu">rnorm</span>(n, <span class="fl">1.5</span> <span class="sc">*</span> <span class="fu">sqrt</span>(nse), <span class="dv">1</span>))) <span class="sc">|&gt;</span></span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(estudio_años <span class="ot">=</span> <span class="fu">pmax</span>(<span class="dv">0</span>, <span class="fu">pmin</span>(<span class="dv">17</span>, estudio_años))) <span class="sc">|&gt;</span> </span>
-<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">habilidad =</span> <span class="fu">rnorm</span>(n, <span class="dv">100</span> <span class="sc">+</span> <span class="fl">0.1</span> <span class="sc">*</span> nse, <span class="dv">1</span>)) <span class="sc">|&gt;</span> </span>
-<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">z =</span> <span class="dv">100</span> <span class="sc">+</span> (habilidad<span class="sc">/</span><span class="dv">100</span>) <span class="sc">*</span> ( <span class="dv">20</span> <span class="sc">*</span> nse <span class="sc">+</span> <span class="dv">5</span> <span class="sc">*</span> (estudio_años))) <span class="sc">|&gt;</span> </span>
-<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">ingreso =</span> <span class="fu">pmax</span>(<span class="dv">0</span>, <span class="fl">0.2</span><span class="sc">*</span>(z <span class="sc">+</span> <span class="fu">rnorm</span>(n, <span class="dv">0</span>, <span class="dv">150</span>))))</span>
-<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>  obs_tbl <span class="ot">&lt;-</span> dat_tbl <span class="sc">|&gt;</span> </span>
-<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">tipo =</span> tipo, <span class="at">id =</span> <span class="dv">1</span><span class="sc">:</span>n)</span>
-<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>  obs_tbl <span class="sc">|&gt;</span> <span class="fu">select</span>(id, tipo, <span class="at">x_1 =</span> estudio_años, <span class="at">x_2 =</span> nse,  <span class="at">y =</span> ingreso)</span>
-<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>genera_datos_2 <span class="ot">&lt;-</span> <span class="cf">function</span>(<span class="at">n =</span> <span class="dv">500</span>, <span class="at">tipo =</span> <span class="cn">NULL</span>){</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  dat_tbl <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">nse =</span> <span class="fu">runif</span>(n, <span class="dv">0</span>, <span class="dv">100</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(estudio_años <span class="ot">=</span> <span class="fu">floor</span>(<span class="fu">rnorm</span>(n, <span class="fl">1.5</span> <span class="sc">*</span> <span class="fu">sqrt</span>(nse), <span class="dv">1</span>))) <span class="sc">|&gt;</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(estudio_años <span class="ot">=</span> <span class="fu">pmax</span>(<span class="dv">0</span>, <span class="fu">pmin</span>(<span class="dv">17</span>, estudio_años))) <span class="sc">|&gt;</span> </span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">habilidad =</span> <span class="fu">rnorm</span>(n, <span class="dv">100</span> <span class="sc">+</span> <span class="fl">0.1</span> <span class="sc">*</span> nse, <span class="dv">1</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">z =</span> <span class="dv">100</span> <span class="sc">+</span> (habilidad<span class="sc">/</span><span class="dv">100</span>) <span class="sc">*</span> ( <span class="dv">20</span> <span class="sc">*</span> nse <span class="sc">+</span> <span class="dv">5</span> <span class="sc">*</span> (estudio_años))) <span class="sc">|&gt;</span> </span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">ingreso =</span> <span class="fu">pmax</span>(<span class="dv">0</span>, <span class="fl">0.2</span><span class="sc">*</span>(z <span class="sc">+</span> <span class="fu">rnorm</span>(n, <span class="dv">0</span>, <span class="dv">150</span>))))</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>  obs_tbl <span class="ot">&lt;-</span> dat_tbl <span class="sc">|&gt;</span> </span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">tipo =</span> tipo, <span class="at">id =</span> <span class="dv">1</span><span class="sc">:</span>n)</span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>  obs_tbl <span class="sc">|&gt;</span> <span class="fu">select</span>(id, tipo, <span class="at">x_1 =</span> estudio_años, <span class="at">x_2 =</span> nse,  <span class="at">y =</span> ingreso)</span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>entrena_tbl <span class="ot">&lt;-</span> <span class="fu">genera_datos_2</span>(<span class="dv">20</span>, <span class="at">tipo =</span> <span class="st">"entrena"</span>)</span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>prueba_tbl <span class="ot">&lt;-</span> <span class="fu">genera_datos_2</span>(<span class="dv">500</span>, <span class="at">tipo =</span> <span class="st">"prueba"</span>)</span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>receta_2 <span class="ot">&lt;-</span> <span class="fu">recipe</span>(y <span class="sc">~</span> x_1 <span class="sc">+</span> x_2, <span class="at">data =</span> entrena_tbl)</span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>flujo_lineal <span class="ot">&lt;-</span> <span class="fu">workflow</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_recipe</span>(receta_2) <span class="sc">|&gt;</span> </span>
-<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_model</span>(modelo_lineal)</span>
-<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Ajustamos</span></span>
-<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>flujo_ajustado_lineal <span class="ot">&lt;-</span> <span class="fu">fit</span>(flujo_lineal, entrena_tbl)</span>
-<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a><span class="fu">predict</span>(flujo_ajustado_lineal, <span class="fu">bind_rows</span>(entrena_tbl, prueba_tbl)) <span class="sc">|&gt;</span> </span>
-<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_cols</span>(<span class="fu">bind_rows</span>(entrena_tbl, prueba_tbl)) <span class="sc">|&gt;</span></span>
-<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(tipo) <span class="sc">|&gt;</span> </span>
-<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rmse</span>(<span class="at">truth =</span> y, <span class="at">estimate =</span> .pred) <span class="sc">|&gt;</span> <span class="fu">gt</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fmt_number</span>(.estimate, <span class="at">decimals =</span> <span class="dv">1</span>)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>entrena_tbl <span class="ot">&lt;-</span> <span class="fu">genera_datos_2</span>(<span class="dv">20</span>, <span class="at">tipo =</span> <span class="st">"entrena"</span>)</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>prueba_tbl <span class="ot">&lt;-</span> <span class="fu">genera_datos_2</span>(<span class="dv">500</span>, <span class="at">tipo =</span> <span class="st">"prueba"</span>)</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>receta_2 <span class="ot">&lt;-</span> <span class="fu">recipe</span>(y <span class="sc">~</span> x_1 <span class="sc">+</span> x_2, <span class="at">data =</span> entrena_tbl)</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>flujo_lineal <span class="ot">&lt;-</span> <span class="fu">workflow</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_recipe</span>(receta_2) <span class="sc">|&gt;</span> </span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_model</span>(modelo_lineal)</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Ajustamos</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>flujo_ajustado_lineal <span class="ot">&lt;-</span> <span class="fu">fit</span>(flujo_lineal, entrena_tbl)</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a><span class="fu">predict</span>(flujo_ajustado_lineal, <span class="fu">bind_rows</span>(entrena_tbl, prueba_tbl)) <span class="sc">|&gt;</span> </span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_cols</span>(<span class="fu">bind_rows</span>(entrena_tbl, prueba_tbl)) <span class="sc">|&gt;</span></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(tipo) <span class="sc">|&gt;</span> </span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rmse</span>(<span class="at">truth =</span> y, <span class="at">estimate =</span> .pred) <span class="sc">|&gt;</span> <span class="fu">gt</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fmt_number</span>(.estimate, <span class="at">decimals =</span> <span class="dv">1</span>)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div id="pllrikurop" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>#pllrikurop table {
@@ -3619,20 +3617,16 @@ Complejidad y error de predicción
 <h2 data-number="2.7" class="anchored" data-anchor-id="acerca-de-la-estimación-del-error-de-predicción"><span class="header-section-number">2.7</span> Acerca de la estimación del error de predicción</h2>
 <p>Cuando usamos una muestra de prueba limitada, podemos evaluar la precisión de nuestra estimación del error de predicción usando por ejemplo el bootstrap. En nuestro ejemplo anterior podríamos hacer los siguiente:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(infer)</span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>preds <span class="ot">&lt;-</span> <span class="fu">predict</span>(flujo_ajustado_lineal, <span class="fu">bind_rows</span>(prueba_tbl)) <span class="sc">|&gt;</span> </span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_cols</span>(prueba_tbl) </span>
-<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>preds <span class="sc">|&gt;</span> </span>
-<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">generate</span>(<span class="at">reps =</span> <span class="dv">1000</span>, <span class="at">type =</span> <span class="st">"bootstrap"</span>, <span class="at">variables =</span> id) <span class="sc">|&gt;</span> </span>
-<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(replicate, tipo) <span class="sc">|&gt;</span> </span>
-<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rmse</span>(<span class="at">truth =</span> y, <span class="at">estimate =</span> .pred) <span class="sc">|&gt;</span> </span>
-<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(replicate, tipo, <span class="at">stat =</span> .estimate) <span class="sc">|&gt;</span></span>
-<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">get_ci</span>(<span class="at">level =</span> <span class="fl">0.90</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt</span>() <span class="sc">|&gt;</span> <span class="fu">fmt_number</span>(<span class="fu">where</span>(is_double), <span class="at">decimals =</span> <span class="dv">1</span>)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: The `variables` argument is only relevant for the "permute" generation type and
-will be ignored.</code></pre>
-</div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(infer)</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>preds <span class="ot">&lt;-</span> <span class="fu">predict</span>(flujo_ajustado_lineal, <span class="fu">bind_rows</span>(prueba_tbl)) <span class="sc">|&gt;</span> </span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_cols</span>(prueba_tbl) </span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>preds <span class="sc">|&gt;</span> </span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">generate</span>(<span class="at">reps =</span> <span class="dv">1000</span>, <span class="at">type =</span> <span class="st">"bootstrap"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(replicate, tipo) <span class="sc">|&gt;</span> </span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rmse</span>(<span class="at">truth =</span> y, <span class="at">estimate =</span> .pred) <span class="sc">|&gt;</span> </span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(replicate, tipo, <span class="at">stat =</span> .estimate) <span class="sc">|&gt;</span></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">get_ci</span>(<span class="at">level =</span> <span class="fl">0.90</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt</span>() <span class="sc">|&gt;</span> <span class="fu">fmt_number</span>(<span class="fu">where</span>(is_double), <span class="at">decimals =</span> <span class="dv">1</span>)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div id="dyaekdyjhc" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>#dyaekdyjhc table {
@@ -4155,7 +4149,7 @@ Reduciendo el error de predicción
 <p>En este curso nos concentraremos en la construcción, evaluación y mejora de modelos predictivos. Para que estas ideas funcionen en problemas reales, hay más aspectos a considerar que no discutiremos con tanto detalle, pues en general están muy ligados al problema particular de predicción que nos interesa (y muchas veces son considerablemente más difíciles de la teoría y los algoritmos):</p>
 <ul>
 <li><p>Para entender exactamente cuál es <strong>el problema</strong> que queremos resolver se requiere trabajo analítico considerable, y también trabajo en entender aspectos del área o negocio donde nos interesa usar aprendizaje máquina. Muchas veces es fácil resolver un problema muy preciso, que tenemos a la mano, pero que más adelante nos damos cuenta de que no es útil.</p></li>
-<li><p>Estos dos puntos incluyen indentificar las <strong>métricas</strong> que queremos monitorear y mejorar, lo cual no siempre es claro. Optimizar métricas incorrectas es poco útil en el mejor de los casos, y en los peores pueden causar daños. Evitar esto requiere monitoreo constante de varios aspectos del funcionamiento de nuestros modelos y sus consecuencias.</p></li>
+<li><p>El punto anterior indentificar las <strong>métricas</strong> que queremos monitorear y mejorar, lo cual no siempre es claro. Hablaremos de este aspecto sólo desde un punto vista técnico. Optimizar métricas incorrectas es poco útil en el mejor de los casos, y en los peores pueden causar daños. Evitar esto requiere monitoreo constante de varios aspectos del funcionamiento de nuestros modelos y sus consecuencias.</p></li>
 <li><p>¿Cómo poner en <strong>producción</strong> modelos y mantenerlos? Un flujo apropiado de trabajo, que comienza con pipelines de preproceso y heurísticas simples, para después utilizar modelos de aprendizaje automático, seguido de monitoreo y entrenamiento continuo son cruciales para tener éxito con este enfoque.</p></li>
 </ul>
 
