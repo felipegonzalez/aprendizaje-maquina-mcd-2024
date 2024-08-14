@@ -15,12 +15,26 @@ scale_colour_discrete <- function(...) {
 
 Métodos **computacionales** para **aprender de datos**  con el fin
 de producir reglas para 
-mejorar el **desempeño** en alguna tarea o toma de decisión. 
+mejorar el **desempeño** en alguna tarea o toma de decisión. Nos
+interesan principalmente aquellas tareas o decisiones que se
+toman de manera repetida y donde el costo de cada error es relativamente
+bajo. 
 
 En este curso nos enfocamos en las tareas de *aprendizaje supervisado* (predecir o estimar una variable respuesta a partir de datos de entrada) y *aprendizaje no supervisado* (describir estructuras interesantes en datos,
 donde no necesariamente hay una respuesta que predecir). Existe también
 *aprendizaje por refuerzo*, en donde buscamos aprender a tomar decisiones
 en un entorno en donde la decisión afecta directa e inmediatamente al entorno.
+
+Las tareas más apropiadas para este enfoque, en general, son aquellas en donde:
+
+- Existe una cantidad considerable de datos relevantes para aprender a ejecutar la tarea.
+- El costo por errores al ejecutar la tarea es relativamente bajo (al menos comparado con alternativas).
+- La tarea se repite de manera más o menos homogénea una cantidad grande de veces.
+
+Aunque es posible extender lo que veremos a contextos más generales, cuando uno
+de los tres anteriores requisitos no se cumple es mejor usar o complementar con
+otros enfoques.
+
 
 #### Ejemplos de tareas de aprendizaje: {-}
 
@@ -55,8 +69,8 @@ características y patrones importantes de nuestros datos.
 
 Es posible aproximarse a todos estos problemas usando reglas (por ejemplo,
 si los pixeles del centro de la imagen están vacíos, entonces es un cero, 
-si el crédito total es mayor al 50\% del ingreso anual, declinar el préstamo, etc). Las razones para no tomar un enfoque de reglas
- construidas "a mano":
+si el crédito total es mayor al 50\% del ingreso anual, declinar el préstamo, etc). 
+Las razones para no tomar un enfoque de reglas construidas "a mano":
 
 - Cuando conjuntos de reglas creadas a mano se desempeñan mal (por ejemplo, para otorgar créditos, reconocer caracteres, etc.)
 - Reglas creadas a mano pueden ser difíciles de mantener (por ejemplo, un corrector
@@ -333,8 +347,9 @@ g_1 + g_2
 ```
 
 La variable de condición de venta no podemos utilizarla para predecir,
-pues sólo la conocemos una vez que la venta se hace. Podemos ver en
-lugar de eso solamente las de condición normal. Consideramos además
+pues sólo la conocemos una vez que la venta se hace. Sin embargo,
+nos interesa principalemente entender qué sucede cuando las casas se venden
+en condiciones normales. Consideramos además
 del área habitable, 
 por ejemplo, la calidad general de terminados:
 
@@ -357,14 +372,14 @@ y tamaño del garage:
 ```{r, fig.width=7, fig.height=3}
 ggplot(casas_entrena |>  filter(condicion_venta == "Normal"),
        aes(x = area_hab_m2, y = precio_miles, colour = area_garage_m2)) +
-  geom_point(alpha = 0.5) + facet_wrap(~ (area_garage_m2 == 0))
+  geom_point(alpha = 0.5) + facet_wrap(~ (area_garage_m2 > 0))
 ```
 
 Y quizá podríamos proponer una fórmula simple de la forma:
 
-$$Precio = a_{calidad} + b_{calidad}\textrm{Area} + c \textrm{AreaGarage} + d\textrm{TieneGarage}$$
+$$Precio = a[\textrm{Calidad}] + b[\textrm{Calidad}] + c\, \textrm{AreaGarage} + d\,\textrm{TieneGarage}$$
 
-donde los valores de $a_{calidad}, b_{calidad}, c, d$ podríamos estimarlos de
+donde los valores de $a[\textrm{Calidad}] , b[\textrm{Calidad}], c, d$ podríamos estimarlos de
 los datos. La pendiente de Area
 dependende de la calificación de la calidad de los terminados.
 
@@ -428,7 +443,8 @@ ggplot(casas_prueba_f |>
        bind_cols(predict(ajuste, casas_prueba_f)),
        aes(x = .pred, y = precio_miles)) +
   geom_point() +
-  geom_abline(colour = "red") + facet_wrap(~ condicion_venta)
+  geom_abline(colour = "red") + facet_wrap(~ condicion_venta) +
+  xlab("Predicción (miles)") + ylab("Precio (miles)")
 ```
 
 Este modelo tiene algunos defectos y todavía tiene error
