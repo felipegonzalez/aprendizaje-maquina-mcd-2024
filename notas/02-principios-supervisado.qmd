@@ -31,8 +31,7 @@ forma mecanística (por ejemplo, el ingreso dadas características de los hogare
 
 ### Ejemplo {-}
 
-Para ilustrar
-esta discusión teórica, consideraremos datos simulados. La población está dada
+Para ilustrar esta discusión teórica, consideraremos datos simulados. La población está dada
 por el siguiente proceso generador de datos:
 
 ```{r, message = FALSE}
@@ -99,6 +98,11 @@ de interés.
 **Observación**: Para fijar ideas, podríamos usar por ejemplo la pérdida absoluta 
 $L(y, f(x)) = |y - f(x)|$  o la pérdida cuadrática  $L(y, f(x)) = (y - f(x))^2$. 
 
+**Observación**: en aprendizaje automático, evaluación del error casi siempre
+es un error promedio. Esto es aceptable cuando no hay riesgos de errores graves, y
+cuando haremos un número considerable de predicciones en el futuro.
+
+
 **Al menos en teoría**, podemos encontrar una $f$ que minimiza esta pérdida:
 
 ::: callout-note
@@ -140,7 +144,7 @@ escoger una métrica simple que capture a grandes rasgos el comportamiento que e
 dos ángulos: el primero es computacional y de propiedades de la predicción, y el
 segundo tiene que ver con costos y beneficios asociados al problema que queremos
 resolver. Para el primero, alguna de las pérdidas estándar (como  las que 
-vimos arriba, cuadrática y absoluta, ologarítmica) son usualmente suficiente. En el segundo
+vimos arriba, cuadrática y absoluta, o logarítmica) son usualmente suficiente. En el segundo
 enfoque, el análisis es generalmente involucra más aspectos particulares del problema
 y generalmente tiene que hacerse de manera ad-hoc.
 
@@ -247,7 +251,7 @@ ggplot(datos_tbl, aes(x = x)) +
 
 ```{r}
 eval_tbl <- prueba_tbl |>  
-  left_join(preds_graf_tbl, by = "x") 
+  left_join(preds_graf_tbl, by = "x", relationship = "many-to-many") 
 resumen_tbl <- eval_tbl |>  
   group_by(predictor, tipo) |> 
   rmse(truth = y, estimate = .pred) 
@@ -503,7 +507,11 @@ término puede llamarse variabilidad, mientras que el segundo es el sesgo que ob
 el segundo término puede ser igual a cero). Desde este punto de vista,
 podemos hacer también la descomposición:
 
-$$\mathbf{y} - \hat{f_{\mathcal{L}}}(\mathbf{x}) = \underbrace{f^* (\mathbf{x}) - f_{lim}(\mathbf{x})}_\text{sesgo-especificacion}  + \underbrace{f_{lim}(\mathbf{x}) - E(\hat{f_{\mathcal{L}}}(\mathbf{x}))}_\text{sesgo-estimacion} +   \underbrace{E(\hat{f_{\mathcal{L}}}(\mathbf{x})) - \hat{f_{\mathcal{L}}}(\mathbf{x})}_\text{variabilidad} + \underbrace{ \mathbf{y} - f^*(\mathbf{x})}_\text{irreducible}.$$
+$$
+\begin{align}
+\mathbf{y} - \hat{f_{\mathcal{L}}}(\mathbf{x}) = &  \underbrace{f^* (\mathbf{x}) - f_{lim}(\mathbf{x})}_\text{sesgo-especificacion}  +  \\ &\underbrace{f_{lim}(\mathbf{x}) - E(\hat{f_{\mathcal{L}}}(\mathbf{x}))}_\text{sesgo-estimacion} +  \underbrace{E(\hat{f_{\mathcal{L}}}(\mathbf{x})) - \hat{f_{\mathcal{L}}}(\mathbf{x})}_\text{variabilidad} + \\  &\underbrace{ \mathbf{y} - f^*(\mathbf{x})}_\text{irreducible}.
+\end{align}
+$$
 
 Tenemos entonces cuatro términos:
 
@@ -667,7 +675,7 @@ library(infer)
 preds <- predict(flujo_ajustado_lineal, bind_rows(prueba_tbl)) |> 
   bind_cols(prueba_tbl) 
 preds |> 
-  generate(reps = 1000, type = "bootstrap", variables = id) |> 
+  generate(reps = 1000, type = "bootstrap") |> 
   group_by(replicate, tipo) |> 
   rmse(truth = y, estimate = .pred) |> 
   select(replicate, tipo, stat = .estimate) |>
@@ -739,8 +747,9 @@ aspectos del área o negocio donde nos interesa usar aprendizaje máquina. Mucha
 veces es fácil resolver un problema muy preciso, que tenemos a la mano,
 pero que más adelante nos damos cuenta de que no es útil.
 
-- Estos dos puntos incluyen indentificar las **métricas** que queremos monitorear y mejorar,
-lo cual no siempre es claro. Optimizar métricas incorrectas es poco útil en el
+- El punto anterior indentificar las **métricas** que queremos monitorear y mejorar,
+lo cual no siempre es claro. Hablaremos de este aspecto sólo desde un punto vista
+técnico. Optimizar métricas incorrectas es poco útil en el
 mejor de los casos, y en los peores pueden causar daños. Evitar esto requiere
 monitoreo constante de varios aspectos del funcionamiento de nuestros modelos y sus
 consecuencias.
