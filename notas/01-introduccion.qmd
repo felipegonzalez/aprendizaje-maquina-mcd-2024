@@ -377,7 +377,7 @@ ggplot(casas_entrena |>  filter(condicion_venta == "Normal"),
 
 Y quizá podríamos proponer una fórmula simple de la forma:
 
-$$Precio = a[\textrm{Calidad}] + b[\textrm{Calidad}] + c\, \textrm{AreaGarage} + d\,\textrm{TieneGarage}$$
+$$Precio = a[\textrm{Calidad}] + b[\textrm{Calidad}]\, Area + c\, \textrm{AreaGarage} + d\,\textrm{TieneGarage}$$
 
 donde los valores de $a[\textrm{Calidad}] , b[\textrm{Calidad}], c, d$ podríamos estimarlos de
 los datos. La pendiente de Area
