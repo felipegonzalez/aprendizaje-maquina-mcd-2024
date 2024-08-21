@@ -8,6 +8,8 @@ book:
     - index.qmd
     - 01-introduccion.qmd
     - 02-principios-supervisado.qmd
+    - 03-metodos-locales.qmd
+    - 04-lineales-ingenieria.qmd
   appendices:
     - 99-referencias.qmd
 
