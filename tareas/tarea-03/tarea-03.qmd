@@ -1,0 +1,245 @@
+---
+title: "Tarea 3: ingieniería de entradas y dimensión alta"
+format: html
+---
+
+
+En este ejemplo hacemos *análisis de sentimiento*, intentanto
+predecir si reseñas de películas son positivas o negativas
+a partir del texto de las reseñas. En este ejemplo
+veremos un enfoque relativamente simple, que consiste en
+considerar solamente las palabras que contienen las reseñas, sin tomar en
+cuenta el orden (el modelo de bolsa de palabras o *bag of words*).
+
+Este ejemplo también es un caso de ingeniería de entradas, donde tenemos
+que convertir sucesiones de palabaras (textos) en variables numéricas
+apropiadas para construir modelos predictivos. Veremos cómo se desempeña:
+
+1. Vecinos más cercanos (usando alguna medida de distancia entre textos)
+2. Regresión lineal (calcular un índice de "positividad" a partir de las palabras en el texto)
+
+## Ingeniería de entradas básico 
+
+Hay muchas maneras de preprocesar textos para obtener
+variables numéricas a partir del texto. Nuestra
+primera estrategia será:
+
+- Limpiamos caracteres que no sean alfanuméricos (en este caso los eliminamos, aunque pueden sustituirse por una "palabra" especial, por ejemplo [NUMERO], etc.)
+- Encontramos las 6000 palabras más frecuentes sobre todos los textos, por ejemplo. 
+Estas palabras son nuestro **vocabulario**.
+- Registramos en qué documentos ocurre cada una de esas palabras.
+- Cada palabra es una columna de nuestros datos, el valor es 1 si la palabra
+ocurre en documento y 0 si no ocurre.
+- Cada documento está representado entonces por una sucesión de 0's y 1's 
+dependiendo de si contiene o no la palabra que corresponde a cada posición.
+
+Por ejemplo, para el texto "Un gato blanco, un gato negro", "un perro juega", "un astronauta juega" quedarían los datos:
+
+| texto-id | un | gato | negro | blanco | perro | juega |
+|----------|----|------|-------|--------|-------|-------|
+| texto_1  | 1  |  1   |   1   |  1     |  0    |  0    |
+| texto_2  | 1  |  0   |   0   |  0     |  1    |  1    |
+| texto_3  | 1  |  0   |   0   |  0     |  0    |  1    |
+
+Nótese que la palabra *astronauta* no está en nuestro vocabulario para este ejemplo.
+
+
+Hay varias opciones para tener mejores variables, que pueden o no ayudar en este
+problema (no las exploramos en este ejercicio, pero puedes explorarlas):
+
+- Usar conteos de frecuencias de ocurrencia de 
+palabras en cada documento, o usar log(1+ conteo), en lugar
+de 0-1's o frecuencias. Hay más posibilidades, como puedes ver 
+[aquí](https://en.wikipedia.org/wiki/Tf%E2%80%93idf).
+- Usar palabras frecuentes, pero quitar las que son *stopwords*,
+como son preposiciones y artículos entre otras, pues no tienen significado: en inglés, por ejemplo, *so, is, then, the, a*, etc.
+- Lematizar palabras: por ejemplo, contar en la misma categoría *movie* y *movies*, o
+*funny* y *funniest*, etc.
+- Usar frecuencias ponderadas por qué tan rara es una palabra sobre todos los documentos (frecuencia inversa sobre documentos)
+- Usar pares de palabras en lugar de palabras sueltas: por ejemplo: juntar "not" con la palabra que sigue (en lugar de usar *not* y *bad* por separado, juntar en una palabra *not_bad*),
+- Usar técnicas de reducción de dimensionalidad o *embeddings* que considera  co-ocurrencia y orden de palabras (veremos más adelante en el curso), basadas en redes neuronales. 
+
+
+**Pregunta 1**: Critica este proceso de ingeniería de entradas: por 
+ejemplo: ¿de qué tamaño debería ser el vocabulario? ¿Qué defectos
+tiene tomar variables indicadoras (0-1) para la aparición de palabras? ¿Qué otras variables deberían incluirse que pueden ser relevantes para
+este problema?
+
+### Datos 
+
+Los textos originales los puedes encontrarlos en la carpeta *datos/sentiment*. 
+Están en archivos individuales que tenemos que leer. Podemos hacer lo que sigue:
+
+```{r, message = FALSE, warning = FALSE}
+library(tidyverse)
+library(tidymodels)
+# puedes necesitar el siguiente paquete
+# install.packages("textrecipes")
+# install.packages("stopwords")
+
+reticulate::use_virtualenv("/cloud/project/r-tensorflow")
+
+nombres_neg <- list.files("datos/sentiment/neg", full.names = TRUE)
+nombres_pos <- list.files("datos/sentiment/pos", full.names = TRUE)
+# positivo
+textos_pos <- tibble(texto = map_chr(nombres_pos, read_file), polaridad = "pos")
+textos_neg <- tibble(texto = map_chr(nombres_neg, read_file), polaridad = "neg")
+textos <- bind_rows(textos_pos, textos_neg) |> 
+  mutate(polaridad_num = ifelse(polaridad == "pos", 1, 0)) |> 
+  select(-polaridad)
+nrow(textos)
+table(textos$polaridad_num)
+```
+
+Pr ejemplo, aquí vemos un fragmento de un texto:
+
+```{r}
+str_sub(textos$texto[[10]], 1, 300)
+```
+
+Antes de definir la receta y explorar, 
+separamos muestra de entrenamiento y validación:
+
+```{r}
+set.seed(3289)
+# Hacemos un split de validación porque más adelante lo usaremos
+# para seleccionar modelos
+textos_split <- initial_split(textos, 0.8)
+textos_entrena <- training(textos_split)
+```
+
+Construimos nuestra receta con el feature engineering explicado arriba:
+
+```{r}
+# install.packages("textrecipes")
+# install.packages("stopwords")
+library(textrecipes)
+receta_polaridad <- recipe(polaridad_num ~ ., textos_entrena) |>
+  step_mutate(texto = str_remove_all(texto, "[_()]")) |> 
+  step_mutate(texto = str_remove_all(texto, "[0-9]*")) |> 
+  step_mutate(texto = str_remove_all(texto, "\n")) |> 
+  step_tokenize(texto) |> # separar por palabras
+  step_stopwords(texto) |> # quitar palabras "vacías"
+  step_tokenfilter(texto, max_tokens = 6000) |> # escoger palabras frecuentes 
+  step_tf(texto, weight_scheme = "binary") |> # crear variables de frecuencia
+  step_mutate(across(where(is.logical), as.numeric)) 
+# en el prep se separa en palabras, se eliminan stopwords,
+# se filtran los de menor frecuencia y se crean las variables
+# de frecuencia que discutimos arriba, todo con los textos de entrenamiento
+```
+
+
+Los términos seleccionados (el vocabulario) están aquí (una muestra)
+
+```{r}
+receta_prep <- receta_polaridad |> prep()
+receta_prep$term_info |> sample_n(30)
+```
+
+El tamaño de la matriz que usaremos tiene 1600
+renglones (textos) por 6000 columnas de términos:
+
+```{r}
+mat_textos_entrena <- juice(receta_prep) 
+dim(mat_textos_entrena)
+head(mat_textos_entrena)
+```
+
+## Benchmark sin información
+
+Como 1 equivale a positivo y 0 a negativo, si hacemos
+una predicción de todos positivos o todos negativos, el
+resultado será aproximadamente 0.5 de error absoluto medio
+(MAE). Los mismo pasa si hacemos una predicción con el promedio 0.5. Este será nuestro *benchmark* no informativo: si estamos
+muy cerca de él, quiere decir que nuestro modelo no tiene utilidad predictiva.
+
+**Pregunta 2** Justifica o critica el párrafo anterior (considerando cómo es el conjunto de datos) del párrafo anterior.
+
+El error benchmark entonces es:
+
+```{r}
+# datos de prueba
+textos_pr <- testing(textos_split)
+# predictor constante
+textos_pr |> 
+  mutate(.pred = 0.5) |> 
+  mae(polaridad_num, .pred)
+```
+
+
+## Vecinos más cercanos
+
+Usaremos vecinos más cercanos con distancia euclideana. Dos documentos
+son muy cercanos cuando contienen palabras muy similares:
+
+```{r}
+# Nota: esto tarda algunos minutos
+modelo_knn <- 
+  nearest_neighbor(weight_func = "rectangular", neighbors = 1) |> 
+  set_engine("kknn", scale = FALSE) |> 
+  set_mode("regression")
+modelo_knn_ajuste <- workflow() |>
+  add_recipe(receta_polaridad) |>
+  add_model(modelo_knn) |>
+  fit(textos_entrena)
+modelo_knn_ajuste
+```
+
+Ahora hacemos predicciones para el conjunto de prueba:
+
+```{r}
+textos_pred_vmc <- predict(modelo_knn_ajuste, textos_pr) |> 
+  bind_cols(textos_pr |> select(polaridad_num))
+```
+
+
+```{r}
+textos_pred_vmc |> 
+  mae(polaridad_num, .pred)
+```
+
+**Pregunta 3**: ¿Por qué crees que k-vecinos no da resultados
+muy buenos? ¿De qué dimensión es el espacio de entradas?
+Usando
+alguna de las descomposiciones que vimos en clase, explica por qué
+en este caso tanto el sesgo como varianza son altos para
+la mayoría de los textos $x$ donde queremos hacer predicciones.
+
+
+
+
+
+## Regresión lineal
+
+Ahora intenteramos usar intentar predecir la polaridad de un texto
+suponiendo que la aparición de cada palabra aporta cierta cantidad
+de "positividad" o "negatividad" al texto. Usamos un modelo lineal simple:
+
+$$f(x) = \beta_0 + \sum_{i=1}^{6000} \beta_j x_j$$
+
+Donde $x_j$ representa es 1 si palabra $j$ está el documento o
+0 en otro caso. Nota que como sólo tenemos 1500 observaciones para 
+6000 parámetros, no podemos resolver directamente con mínimos cuadrados
+(hay muchas soluciones). Sin embargo, podemos usar descenso en gradiente con keras/tensorflow para encontrar alguna solución (o solución aproxiamda)
+
+
+```{r}
+modelo_reg <- linear_reg() |> 
+  set_engine("keras", epochs = 10) 
+flujo_textos_reg <- workflow() |>
+  add_recipe(receta_polaridad) |> 
+  add_model(modelo_reg) |> 
+  fit(textos_entrena)
+preds_reg <- predict(flujo_textos_reg, textos_pr) |> 
+  bind_cols(textos_pr |> select(polaridad_num)) 
+preds_reg |> 
+  mae(polaridad_num, .pred)
+```
+
+**Pregunta 4**: Explica por qué crees que este modelo lineal simple da mejores resultados que vecinos más cercanos.
+
+**Pregunta r**: Dada la naturaleza de los textos, explica por qué este modelo debe tener problemas de sesgo, independiente del método de optimización que usamos (piensa en la información de los textos que no usa el modelo)
+
+
+
+
