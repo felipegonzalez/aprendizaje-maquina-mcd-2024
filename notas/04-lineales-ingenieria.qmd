@@ -68,9 +68,12 @@ $$\hat{f} (x_1,x_2,x_3,x_4) = 800000 + 4\, x_1 + 1.5 \,x_2 + 400000\, x_3 +6\, x
 
 Nótese que cuando usamos modelos lineales, es necesario considerar qué entradas
 usar para construir el modelo de forma que la estructura lineal sea razonable. 
+
 - Estas entradas son construidas a partir de las variables originales
-- Agregar variables tiene dos efectos: disminuye el sesgo, y también puede reducir el error irreducible.
-- Omitir o simplificar estos modelos disminuyen típicamente la varianza pero pueden aumentar el sesgo.
+- Agregar variables tiene dos efectos: disminuyen el sesgo, y también puede 
+reducir el error irreducible.
+- Omitir o simplificar estos modelos disminuye típicamente la varianza pero puede
+aumentar el sesgo.
 :::
 
 En este caso particular, teníamos peatones, coches y estacionamiento, pero
@@ -136,7 +139,7 @@ Como discutimos al final de la sección anterior, minimizar directamente el erro
 Algunas veces, encontrar la estructura apropiada puede requerir más trabajo
 que simplemente escoger una familia de modelos. Por ejemplo, en el caso de precios
 de casa, vimos que podríamos mejorar el ajuste haciendo que el coeficiente
-de área habitable dependiera de la calidad de los terminados \@ref(medicioncostosa).
+de área habitable dependiera de la calidad de los terminados (@sec-medicioncostosa).
 
 Usualmente tendremos que hacer varias transformaciones para obtener buen 
 desempeño de un modelo lineal. En la siguientes secciones mostramos algunas
@@ -287,7 +290,7 @@ si utilizamos regularización (ver sección siguiente).
 
 Otra manera de expandir nuestro modelo es la utilización de interacciones, que 
 muchas veces son clave para tener éxito con modelos lineales. Vimos ejemplos
-de interacciones en el ejemplo de las casas (\@ref(medicioncostosa)) y en el primer
+de interacciones en el ejemplo de las casas (@sec-medicioncostosa) y en el primer
 ejemplo de ventas de tiendas que dependían del tráfico.
 
 ### Ejemplo {-}
@@ -457,19 +460,20 @@ En un primer ejemplo consideremos la variable de área de lote:
 ```{r, fig.width = 8, fig.height=3, warning=FALSE ,message = FALSE}
 library(patchwork)
 g_1 <- ggplot(casas_entrena, aes(x = area_lote_m2, y = precio_miles)) +
-  geom_point() + #geom_smooth(method = "loess", span = 0.5, se = FALSE,
-                #             method.args = list(degree = 1)) +
-  geom_smooth(method = "lm", se = FALSE)
+  geom_point() + 
+  geom_smooth(method = "lm", se = FALSE) +
+  ggtitle("Sin fitrar") 
 g_2 <- ggplot(casas_entrena |> filter(area_lote_m2 < 5000), aes(x = area_lote_m2, y = precio_miles)) +
   geom_point(data = casas_entrena, aes(colour = area_lote_m2 > 5000)) + 
-  #geom_smooth(method = "loess", span = 0.5, se = FALSE,
-  #                           method.args = list(degree = 1)) +
-  geom_smooth(method = "lm", se = FALSE)
+  geom_smooth(method = "lm", se = FALSE) +
+  ggtitle("Filtrando valores grandes") 
 g_1 + g_2
 ```
+
 Y notamos que hay algunos valores grandes que pueden perturbar el ajuste lineal. Esto
 puede producir varianza alta en las predicciones, pues el ajuste depende mucho de unos
-cuantos valores de entrenamiento. Una solución puede ser transformar la entrada por
+cuantos valores de entrenamiento (intenta explicar de dónde sale esa varianza). 
+Una solución puede ser transformar la entrada por
 ejempo usando el logaritmo, que comprime la cola derecha de la distribución
 de la variable que tiene mucho sesgo:
 
@@ -479,8 +483,17 @@ ggplot(casas_entrena, aes(x = area_lote_m2, y = precio_miles)) +
   geom_smooth(method = "loess", span = 0.5, se = FALSE) +
   scale_x_log10()
 ```
-Nótese que probablemente tendremos que agregar más flexibilidad en nuestro
-predictor para capturar apropiadamente la información en esta variable.
+
+Nótese que: 
+
+- Probablemente tendremos que agregar más flexibilidad en nuestro
+predictor para capturar apropiadamente la información en esta variable, como mostramos
+en la gráfica anterior. Esto muestra que con flexibilidad apropiada, la existencia de atípicos
+no necesariamente afecta mucho la estimación donde existe la mayoría de los valores.
+- En algunos casos, si después de investigar estas observaciones vemos que son datos
+erróneos (y conocemos la razón del error o medición defectuosa), podemos corregirlos o eliminarlos.
+Esto es parte del preprocesamiento y es necesario también probar el impacto en desempeño de estas
+modificaciones.
 
 ## No linealidad y splines
 
@@ -512,12 +525,38 @@ bind_rows(tibble(x = valores_x, y = spline_2, spline = 2)) |>
 Estos dos son ejemplos de funciones cúbicas por tramos y dos veces diferenciables,
 con nudos en 0, 33, 66 y 100. Su forma particular depende de tres coeficientes,
 que pueden pensarse también como definidos por dónde tienen que pasar la curva
-en $y$ para los valores $x = 33, 66$ y $100$. Extrapolan linealmente fuera del rango
+en $y$ para los valores $x = 33, 66$ y $100$. Extrapolan *linealmente* fuera del rango
 de los datos.
 
-La ventaja de utilizar estos splines es que son estables en el cálculo, pues
-a lo más utilizan potencias cúbicas, y la complejidad puede aumentarse 
-incrementando el número de nodos.
+Para entender mejor esta construcción, primero consideramos el uso de polinomios
+para hacer expansión de entradas. Por ejemplo, si escogemos grado 3, la idea es convertir
+una variable $x$ en varias variables $x, x^2, x^3, x^4$, de modo que nuestro
+modelo original
+
+$$f(x) = a + bx + \textrm{otros términos}$$
+Se convierte en 
+
+$$f(x) = a + b_1x + b_2x^2 + b_3x^3 + b_4x^4 + \textrm{otros términos}$$
+
+Para hacer esto, sólo tenemos que precalcular $x, x^2, x^3, x^4$ y añadir al modelo
+lineal.
+
+En el caso de splines, con 4 grados de libertad por ejemplo, el modelo se convierte en:
+
+$$f(x) = a + b_1s_1(x) + b_2s_2(x) + b_3s_3(x) + b_4s_4(x) + \textrm{otros términos}$$
+donde cada $s_i(x)$ es una función cúbica por tramos que vale 0 fuera de un intervalo.
+Igual que con polinomios, estas variables $s_i(x)$ pueden precalcularse a partir
+de la $x$ original y los nudos que escogimos. Puedes ver los detalles en
+nuestra referencia @ESL.
+
+
+La ventaja de utilizar estos splines es que 
+
+- Son más estables en el cálculo, pues a lo más utilizan potencias cúbicas.
+- La complejidad puede aumentarse incrementando el número de nodos, sin incrementar el grado.
+- Evitan el problema de la naturaleza global de los polinomios, 
+en los que cambios en una parte de los datos puede afectar severamente la forma del polinomio en otros lugares lejanos. Esto limita los efectos negativos de la varianza adicional en
+las colas de los datos (por ejemplo atípicos).
 
 ### Ejemplo {-}
 

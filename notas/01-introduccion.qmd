@@ -294,7 +294,7 @@ en procesamiento de imágenes es cada vez más común usar redes neuronales
 grandes para resolver este tipo de problemas.
 
 
-## Ejemplo:  mediciones costosas {#medicioncostosa}
+## Ejemplo:  mediciones costosas {#sec-medicioncostosa}
 
 
 En algunos casos, el estándar de la medición que nos interesa es uno que
