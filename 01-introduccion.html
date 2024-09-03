@@ -228,7 +228,7 @@ window.Quarto = {
   <ul>
   <li><a href="#qué-es-aprendizaje-de-máquina-machine-learning" id="toc-qué-es-aprendizaje-de-máquina-machine-learning" class="nav-link active" data-scroll-target="#qué-es-aprendizaje-de-máquina-machine-learning"><span class="header-section-number">1.1</span> ¿Qué es aprendizaje de máquina (machine learning)?</a></li>
   <li><a href="#ejemplo-reglas-y-aprendizaje" id="toc-ejemplo-reglas-y-aprendizaje" class="nav-link" data-scroll-target="#ejemplo-reglas-y-aprendizaje"><span class="header-section-number">1.2</span> Ejemplo: reglas y aprendizaje</a></li>
-  <li><a href="#medicioncostosa" id="toc-medicioncostosa" class="nav-link" data-scroll-target="#medicioncostosa"><span class="header-section-number">1.3</span> Ejemplo: mediciones costosas</a></li>
+  <li><a href="#sec-medicioncostosa" id="toc-sec-medicioncostosa" class="nav-link" data-scroll-target="#sec-medicioncostosa"><span class="header-section-number">1.3</span> Ejemplo: mediciones costosas</a></li>
   <li><a href="#aprendizaje-supervisado-y-no-supervisado" id="toc-aprendizaje-supervisado-y-no-supervisado" class="nav-link" data-scroll-target="#aprendizaje-supervisado-y-no-supervisado"><span class="header-section-number">1.4</span> Aprendizaje supervisado y no supervisado</a></li>
   </ul>
 </nav>
@@ -487,7 +487,7 @@ window.Quarto = {
 <div class="cell">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>preds <span class="ot">&lt;-</span> <span class="fu">predict</span>(modelo, x[<span class="sc">-</span>indices_entrena,,,])</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>23/23 - 1s - 23ms/step</code></pre>
+<pre><code>23/23 - 0s - 22ms/step</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>preds_tbl <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">y =</span> y_imagenes[<span class="sc">-</span><span class="fu">c</span>(indices_entrena)] <span class="sc">/</span> <span class="dv">10</span>, <span class="at">preds =</span> preds)</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(preds_tbl, <span class="fu">aes</span>(<span class="at">x =</span> preds, <span class="at">y =</span> y)) <span class="sc">+</span></span>
@@ -503,8 +503,8 @@ window.Quarto = {
 </div>
 <p>De forma que podemos resolver este problema con algoritmos generales, sin tener que aplicar métodos sofisticados de procesamiento de imágenes. El enfoque de aprendizaje es particularmente efectivo cuando hay cantidades grandes de datos poco ruidosos, y aunque en este ejemplo los dos enfoques dan resultados razonables, en procesamiento de imágenes es cada vez más común usar redes neuronales grandes para resolver este tipo de problemas.</p>
 </section>
-<section id="medicioncostosa" class="level2" data-number="1.3">
-<h2 data-number="1.3" class="anchored" data-anchor-id="medicioncostosa"><span class="header-section-number">1.3</span> Ejemplo: mediciones costosas</h2>
+<section id="sec-medicioncostosa" class="level2" data-number="1.3">
+<h2 data-number="1.3" class="anchored" data-anchor-id="sec-medicioncostosa"><span class="header-section-number">1.3</span> Ejemplo: mediciones costosas</h2>
 <p>En algunos casos, el estándar de la medición que nos interesa es uno que es costoso de cumplir: a veces se dice que <em>etiquetar</em> los datos es costoso. Un ejemplo es producir las estimaciones de ingreso trimestral de un hogar que se recolecta en la ENIGH (ver <a href="https://www.inegi.org.mx/programas/enigh/nc/2018/">aquí</a>). En este caso particular, se utiliza esta encuesta como datos etiquetados para poder estimar el ingreso de otros hogares que no están en la muestra del ENIGH, pero para los que se conocen características de las vivienda, características de los integrantes, y otras medidas que son más fácilmente recolectadas en encuestas de opinión.</p>
 <p>Veremos otro ejemplo: estimar el valor de mercado de las casas en venta de una región. Es posible que tengamos un inventario de casas con varias de sus características registradas, pero producir estimaciones correctas de su valor de mercado puede requerir de inspecciones costosas de expertos, o tomar aproximaciones imprecisas de esta cantidad (por ejemplo, cuál es el precio ofertado).</p>
 <p>Utilizaremos datos de casas que se <a href="https://www.kaggle.com/prevek18/ames-housing-dataset">vendieron en Ames, Iowa en cierto periodo</a>. En este caso, conocemos el valor a la que se vendió una casa. Buscamos producir una estimación para otras casas para las cuales conocemos características como su localización, superficie en metros cuadrados, año de construcción, espacio de estacionamiento, y así sucesivamente. Estas medidas son más fáciles de recolectar, y quisiéramos producir una estimación de su precio de venta en términos de estas medidas.</p>

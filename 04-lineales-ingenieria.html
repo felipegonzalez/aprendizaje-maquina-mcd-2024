@@ -54,7 +54,27 @@ div.sourceCode
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-</style>
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
 <script src="site_libs/quarto-nav/quarto-nav.js"></script>
@@ -295,7 +315,12 @@ Variables derivadas
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Nótese que cuando usamos modelos lineales, es necesario considerar qué entradas usar para construir el modelo de forma que la estructura lineal sea razonable. - Estas entradas son construidas a partir de las variables originales - Agregar variables tiene dos efectos: disminuye el sesgo, y también puede reducir el error irreducible. - Omitir o simplificar estos modelos disminuyen típicamente la varianza pero pueden aumentar el sesgo.</p>
+<p>Nótese que cuando usamos modelos lineales, es necesario considerar qué entradas usar para construir el modelo de forma que la estructura lineal sea razonable.</p>
+<ul>
+<li>Estas entradas son construidas a partir de las variables originales</li>
+<li>Agregar variables tiene dos efectos: disminuyen el sesgo, y también puede reducir el error irreducible.</li>
+<li>Omitir o simplificar estos modelos disminuye típicamente la varianza pero puede aumentar el sesgo.</li>
+</ul>
 </div>
 </div>
 <p>En este caso particular, teníamos peatones, coches y estacionamiento, pero construimos también el producto de tráfico de coches y estacionamiento, pues la relación de ventas con coches es diferente dependiendo de sí la tienda tiene estacionamiento o no.</p>
@@ -327,7 +352,7 @@ Mínimos cuadrados para regresión lineal
 </section>
 <section id="ingeniería-de-entradas" class="level2" data-number="4.2">
 <h2 data-number="4.2" class="anchored" data-anchor-id="ingeniería-de-entradas"><span class="header-section-number">4.2</span> Ingeniería de entradas</h2>
-<p>Algunas veces, encontrar la estructura apropiada puede requerir más trabajo que simplemente escoger una familia de modelos. Por ejemplo, en el caso de precios de casa, vimos que podríamos mejorar el ajuste haciendo que el coeficiente de área habitable dependiera de la calidad de los terminados @ref(medicioncostosa).</p>
+<p>Algunas veces, encontrar la estructura apropiada puede requerir más trabajo que simplemente escoger una familia de modelos. Por ejemplo, en el caso de precios de casa, vimos que podríamos mejorar el ajuste haciendo que el coeficiente de área habitable dependiera de la calidad de los terminados (<a href="01-introduccion.html#sec-medicioncostosa" class="quarto-xref"><span>Sección 1.3</span></a>).</p>
 <p>Usualmente tendremos que hacer varias transformaciones para obtener buen desempeño de un modelo lineal. En la siguientes secciones mostramos algunas de las más usuales.</p>
 </section>
 <section id="variables-categóricas" class="level2" data-number="4.3">
@@ -3273,7 +3298,7 @@ Variables categóricas
 </section>
 <section id="interacciones" class="level2" data-number="4.4">
 <h2 data-number="4.4" class="anchored" data-anchor-id="interacciones"><span class="header-section-number">4.4</span> Interacciones</h2>
-<p>Otra manera de expandir nuestro modelo es la utilización de interacciones, que muchas veces son clave para tener éxito con modelos lineales. Vimos ejemplos de interacciones en el ejemplo de las casas (@ref(medicioncostosa)) y en el primer ejemplo de ventas de tiendas que dependían del tráfico.</p>
+<p>Otra manera de expandir nuestro modelo es la utilización de interacciones, que muchas veces son clave para tener éxito con modelos lineales. Vimos ejemplos de interacciones en el ejemplo de las casas (<a href="01-introduccion.html#sec-medicioncostosa" class="quarto-xref"><span>Sección 1.3</span></a>) y en el primer ejemplo de ventas de tiendas que dependían del tráfico.</p>
 <section id="ejemplo" class="level3 unnumbered">
 <h3 class="unnumbered anchored" data-anchor-id="ejemplo">Ejemplo</h3>
 <p>Si <span class="math inline">\(x_1\)</span> es el área en metros cuadrados de una casa, y <span class="math inline">\(x_2\)</span> una calificación numérica de su calidad, podemos considerar el modelo sin interacciones:</p>
@@ -5542,15 +5567,14 @@ The retained training set is ~ 0.44 Mb  in memory.</code></pre>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(patchwork)</span>
 <span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>g_1 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(casas_entrena, <span class="fu">aes</span>(<span class="at">x =</span> area_lote_m2, <span class="at">y =</span> precio_miles)) <span class="sc">+</span></span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span> <span class="co">#geom_smooth(method = "loess", span = 0.5, se = FALSE,</span></span>
-<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>                <span class="co">#             method.args = list(degree = 1)) +</span></span>
-<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span> </span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"Sin fitrar"</span>) </span>
 <span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>g_2 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(casas_entrena <span class="sc">|&gt;</span> <span class="fu">filter</span>(area_lote_m2 <span class="sc">&lt;</span> <span class="dv">5000</span>), <span class="fu">aes</span>(<span class="at">x =</span> area_lote_m2, <span class="at">y =</span> precio_miles)) <span class="sc">+</span></span>
 <span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data =</span> casas_entrena, <span class="fu">aes</span>(<span class="at">colour =</span> area_lote_m2 <span class="sc">&gt;</span> <span class="dv">5000</span>)) <span class="sc">+</span> </span>
-<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>  <span class="co">#geom_smooth(method = "loess", span = 0.5, se = FALSE,</span></span>
-<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>  <span class="co">#                           method.args = list(degree = 1)) +</span></span>
-<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>g_1 <span class="sc">+</span> g_2</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"Filtrando valores grandes"</span>) </span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>g_1 <span class="sc">+</span> g_2</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -5559,7 +5583,7 @@ The retained training set is ~ 0.44 Mb  in memory.</code></pre>
 </div>
 </div>
 </div>
-<p>Y notamos que hay algunos valores grandes que pueden perturbar el ajuste lineal. Esto puede producir varianza alta en las predicciones, pues el ajuste depende mucho de unos cuantos valores de entrenamiento. Una solución puede ser transformar la entrada por ejempo usando el logaritmo, que comprime la cola derecha de la distribución de la variable que tiene mucho sesgo:</p>
+<p>Y notamos que hay algunos valores grandes que pueden perturbar el ajuste lineal. Esto puede producir varianza alta en las predicciones, pues el ajuste depende mucho de unos cuantos valores de entrenamiento (intenta explicar de dónde sale esa varianza). Una solución puede ser transformar la entrada por ejempo usando el logaritmo, que comprime la cola derecha de la distribución de la variable que tiene mucho sesgo:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(casas_entrena, <span class="fu">aes</span>(<span class="at">x =</span> area_lote_m2, <span class="at">y =</span> precio_miles)) <span class="sc">+</span></span>
 <span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
@@ -5576,7 +5600,11 @@ The retained training set is ~ 0.44 Mb  in memory.</code></pre>
 </div>
 </div>
 </div>
-<p>Nótese que probablemente tendremos que agregar más flexibilidad en nuestro predictor para capturar apropiadamente la información en esta variable.</p>
+<p>Nótese que:</p>
+<ul>
+<li>Probablemente tendremos que agregar más flexibilidad en nuestro predictor para capturar apropiadamente la información en esta variable, como mostramos en la gráfica anterior. Esto muestra que con flexibilidad apropiada, la existencia de atípicos no necesariamente afecta mucho la estimación donde existe la mayoría de los valores.</li>
+<li>En algunos casos, si después de investigar estas observaciones vemos que son datos erróneos (y conocemos la razón del error o medición defectuosa), podemos corregirlos o eliminarlos. Esto es parte del preprocesamiento y es necesario también probar el impacto en desempeño de estas modificaciones.</li>
+</ul>
 </section>
 <section id="no-linealidad-y-splines" class="level2" data-number="4.7">
 <h2 data-number="4.7" class="anchored" data-anchor-id="no-linealidad-y-splines"><span class="header-section-number">4.7</span> No linealidad y splines</h2>
@@ -5603,8 +5631,19 @@ The retained training set is ~ 0.44 Mb  in memory.</code></pre>
 </div>
 </div>
 </div>
-<p>Estos dos son ejemplos de funciones cúbicas por tramos y dos veces diferenciables, con nudos en 0, 33, 66 y 100. Su forma particular depende de tres coeficientes, que pueden pensarse también como definidos por dónde tienen que pasar la curva en <span class="math inline">\(y\)</span> para los valores <span class="math inline">\(x = 33, 66\)</span> y <span class="math inline">\(100\)</span>. Extrapolan linealmente fuera del rango de los datos.</p>
-<p>La ventaja de utilizar estos splines es que son estables en el cálculo, pues a lo más utilizan potencias cúbicas, y la complejidad puede aumentarse incrementando el número de nodos.</p>
+<p>Estos dos son ejemplos de funciones cúbicas por tramos y dos veces diferenciables, con nudos en 0, 33, 66 y 100. Su forma particular depende de tres coeficientes, que pueden pensarse también como definidos por dónde tienen que pasar la curva en <span class="math inline">\(y\)</span> para los valores <span class="math inline">\(x = 33, 66\)</span> y <span class="math inline">\(100\)</span>. Extrapolan <em>linealmente</em> fuera del rango de los datos.</p>
+<p>Para entender mejor esta construcción, primero consideramos el uso de polinomios para hacer expansión de entradas. Por ejemplo, si escogemos grado 3, la idea es convertir una variable <span class="math inline">\(x\)</span> en varias variables <span class="math inline">\(x, x^2, x^3, x^4\)</span>, de modo que nuestro modelo original</p>
+<p><span class="math display">\[f(x) = a + bx + \textrm{otros términos}\]</span> Se convierte en</p>
+<p><span class="math display">\[f(x) = a + b_1x + b_2x^2 + b_3x^3 + b_4x^4 + \textrm{otros términos}\]</span></p>
+<p>Para hacer esto, sólo tenemos que precalcular <span class="math inline">\(x, x^2, x^3, x^4\)</span> y añadir al modelo lineal.</p>
+<p>En el caso de splines, con 4 grados de libertad por ejemplo, el modelo se convierte en:</p>
+<p><span class="math display">\[f(x) = a + b_1s_1(x) + b_2s_2(x) + b_3s_3(x) + b_4s_4(x) + \textrm{otros términos}\]</span> donde cada <span class="math inline">\(s_i(x)\)</span> es una función cúbica por tramos que vale 0 fuera de un intervalo. Igual que con polinomios, estas variables <span class="math inline">\(s_i(x)\)</span> pueden precalcularse a partir de la <span class="math inline">\(x\)</span> original y los nudos que escogimos. Puedes ver los detalles en nuestra referencia <span class="citation" data-cites="ESL">Hastie, Tibshirani, y Friedman (<a href="99-referencias.html#ref-ESL" role="doc-biblioref">2017</a>)</span>.</p>
+<p>La ventaja de utilizar estos splines es que</p>
+<ul>
+<li>Son más estables en el cálculo, pues a lo más utilizan potencias cúbicas.</li>
+<li>La complejidad puede aumentarse incrementando el número de nodos, sin incrementar el grado.</li>
+<li>Evitan el problema de la naturaleza global de los polinomios, en los que cambios en una parte de los datos puede afectar severamente la forma del polinomio en otros lugares lejanos. Esto limita los efectos negativos de la varianza adicional en las colas de los datos (por ejemplo atípicos).</li>
+</ul>
 <section id="ejemplo-1" class="level3 unnumbered">
 <h3 class="unnumbered anchored" data-anchor-id="ejemplo-1">Ejemplo</h3>
 <p>Revisamos nuestro ejemplo de rendimiento de coches:</p>
@@ -6749,6 +6788,11 @@ The retained training set is ~ 0.44 Mb  in memory.</code></pre>
 </div>
 
 
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list" style="display: none">
+<div id="ref-ESL" class="csl-entry" role="listitem">
+Hastie, Trevor, Robert Tibshirani, y Jerome Friedman. 2017. <em>The Elements of Statistical Learning</em>. Springer Series en Statistics. Springer New York Inc. <a href="http://web.stanford.edu/~hastie/ElemStatLearn/">http://web.stanford.edu/~hastie/ElemStatLearn/</a>.
+</div>
+</div>
 </section>
 </section>
 
