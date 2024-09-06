@@ -1,0 +1,146 @@
+---
+title: "Más de ingeniería de entradas y splines"
+format: html
+---
+
+```{r}
+library(tidyverse)
+library(tidymodels)
+```
+
+
+## Splines con una variable de entrada
+
+Consideramos un ejemplo simulado.
+
+```{r}
+simular_datos <- function(n){
+  x <- rgamma(n, 1, 1)
+  y <- exp(sin(x) + rnorm(n, 0, 0.1))
+  tibble(x, y)
+}
+```
+
+Si utilizamos regresión lineal sin transformación de variables de entradas,
+obtenemos sesgo alto y varianza alta:
+```{r}
+set.seed(12342)
+datos <- map_df(1:12, ~ simular_datos(50) |> mutate(rep = .x))
+ggplot(datos, aes(x, y)) +
+  geom_point() + 
+  geom_smooth(method = "lm", se = FALSE, formula = y ~ x, fullrange = TRUE) +
+  facet_wrap(~ rep)
+```
+
+**Pregunta 1**: En este ejemplo, ¿por qué hay varianza alta en nuestras predicciones con una recta simple? Explica por qué esto puede afectar
+nuestras las predicciones para cualquier $x$ donde busquemos hacer predicciones.
+
+
+Si no consideramos los datos en la cola derecha, la varianza se reduce considerablemente,
+pero el sesgo todavía está presente:
+
+```{r}
+ggplot(datos |> filter(x < 3), aes(x, y)) +
+  geom_point() + 
+  geom_smooth(method = "lm", se = FALSE, formula = y ~ x,
+              fullrange = TRUE) +
+  facet_wrap(~ rep)
+```
+
+**Pregunta 2**: Si sólo buscamos hacer predicciones para casos con $x<3$, 
+¿de dónde proviene el error? Se trata de varianza o sesgo?
+
+
+Ahora consideramos usar un método más flexible: splines, que consisten de polinomios por tramos (en la siguiente sección presentamos un repaso de splines):
+
+```{r}
+ggplot(datos, aes(x, y)) +
+  geom_point() + 
+  geom_smooth(method = "lm", se = FALSE, 
+    fullrange = TRUE,
+    formula = y ~ 1 + splines::ns(x, df = 4)) +
+  facet_wrap(~ rep)
+```
+
+**Pregunta 3**: Con respecto al primer intento que hicimos, 
+qué tanta varianza existe en las predicciones con $x<2$? ¿Qué tanto 
+sesgo? (Di si cada uno aumentó o disminuyó). En general, ¿qué tan
+buenas son las predicciones para $x<2$
+
+**Pregunta 4**: ¿Qué sucede con la calidad de las predicciones  para $x$ altas? Argumenta por qué en general tenemos qué tener cuidado con predicciones que tienen $x$ muy por fuera del rango de los datos de entrenamiento, especialmente cuando usamos regresión con o sin splines.
+
+## Splines con una variable de entrada
+
+Revisa la sección 4.7 para más explicación de cómo funcionan los
+splines, y haz experimentos con la siguiente aplicación (o abre el proyecto
+splines-app en nuestro espacio de trabajo): https://8bfbbd76b42f4289a46c07f3f76da73a.app.posit.cloud/
+
+La aplicación calcula, a partir de la variable $x$, variables derivadas
+$b_1(x), b_2(x),\ldots, b_k(x)$ que se llama la base de los splines, y cada
+uno de ellas es una función que pretende capturar el comportamiento 
+en distintos tramos de $x$. 
+
+**Pregunta 5**: Pon todos los coeficientes en cero en la app y modifica 
+solamente uno a la vez para ver cómo es la forma de cada elemento $b(x)$ de la base.
+
+**Pregunta 6**: Mueve los coeficientes conjuntamente 
+de distintas maneras para entender que tipo de patrones puedes modelar con los splines.
+
+## Afinación de número de entradas derivadas
+
+**Observación final**: en la práctica, el número de elementos en la base
+de splines puede ser un parámetro que se afina en validación, por ejemplo:
+
+
+```{r}
+set.seed(1252)
+datos_1 <- simular_datos(200)
+datos_split <- initial_validation_split(datos_1, prop = c(0.4, 0.4))
+```
+
+En la siguiente receta declaramos el número de splines como un parámetro a afinar,
+que evaluaremos con la muestra de validación:
+
+```{r}
+receta_spline <- recipe(y ~ x, training(datos_split)) |> 
+  step_ns(x, deg_free = tune("num_splines"))
+modelo <- linear_reg(engine = "lm")
+```
+
+```{r}
+flujo <- workflow() |> 
+  add_model(modelo) |> 
+  add_recipe(receta_spline)
+```
+
+
+```{r}
+valores_probar <- tibble(num_splines = 1:20)
+val_ajustes <- tune_grid(flujo, 
+                  grid = valores_probar,
+                  resamples = validation_set(datos_split),
+                  metrics = metric_set(rmse))
+```
+
+
+```{r}
+val_ajustes |> collect_metrics() |> 
+  filter(.metric == "rmse") |> 
+  select(num_splines, .metric, mean) |> 
+  arrange(num_splines) |> 
+ggplot(aes(x = num_splines, y = mean)) +
+  ylab("rmse") + geom_line() + geom_point() 
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
