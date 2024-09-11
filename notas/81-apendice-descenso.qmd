@@ -82,8 +82,11 @@ descenso_g <- curva +
     geom_point(data = dat_iteraciones, aes(x = x, y = y), col = "red", size = 3) +
     transition_time(iteracion) + 
     theme_minimal(base_size = 20)
-animate(descenso_g)
+if(FALSE){
+  animate(descenso_g)
+}
 ```
+![](figuras/descenso_0.gif){width="400px"}
 
 #### Selección de tamaño de paso $\eta$ {.unnumbered}
 
@@ -112,8 +115,11 @@ descenso_3 <- curva +
     transition_time(iteracion) +
     labs(title = "Iteración {frame_time}") + 
     theme_minimal(base_size = 20)
-animate(descenso_3, width = 1000, height = 300)
+if(FALSE){
+  animate(descenso_3, width = 1000, height = 300)
+}
 ```
+![](figuras/descenso_01.gif)
 
 ::: callout-tip
 Es necesario ajustar el tamaño de paso para cada problema particular. Si
