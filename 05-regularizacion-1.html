@@ -84,7 +84,7 @@ div.csl-indent {
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./99-referencias.html" rel="next">
+<link href="./81-apendice-descenso.html" rel="next">
 <link href="./04-lineales-ingenieria.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
@@ -234,6 +234,18 @@ window.Quarto = {
           </a> 
       </div>
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./81-apendice-descenso.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">A</span>&nbsp; <span class="chapter-title">Apéndice 1: descenso en gradiente</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./82-apendice-descenso-estocastico.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">B</span>&nbsp; <span class="chapter-title">Apéndice 2: Descenso estocástico</span></span></a>
+  </div>
+</li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./99-referencias.html" class="sidebar-item-text sidebar-link">
@@ -2000,7 +2012,7 @@ Regularización para modelos lineales
 <section id="regularización-con-descenso-en-gradiente" class="level2" data-number="5.7">
 <h2 data-number="5.7" class="anchored" data-anchor-id="regularización-con-descenso-en-gradiente"><span class="header-section-number">5.7</span> Regularización con descenso en gradiente</h2>
 <p>Otra forma de hacer regularización que se utiliza comunmente se basa en el método de minimización que usamos para obtener nuestra función <span class="math inline">\(\hat{f}\)</span> para hacer predicciones. La idea es utilizar un método iterativo que comience con una <span class="math inline">\(f_0\)</span> simple, y luego iterar a una nueva <span class="math inline">\(f_1\)</span> que se adapta mejor a los datos pero no es muy diferente a <span class="math inline">\(f_0\)</span>. En lugar de seguir iterando hasta llegar a un mínimo de <span class="math inline">\(L(f),\)</span> evaluamos con una muestra de prueba para encontrar un lugar apropiado para detenernos (<em>early stopping</em>). También podemos modificar <span class="math inline">\(L(f)\)</span> en cada paso para evitar atorarnos en un mínimo sobreajustado.</p>
-<p>Una manera de hacer esto es usando el método de descenso estocástico, (ver apéndices <span class="quarto-unresolved-ref">?sec-desc-maximo</span> y <span class="quarto-unresolved-ref">?sec-desc-estocastico</span>) que consiste en:</p>
+<p>Una manera de hacer esto es usando el método de descenso estocástico, (ver apéndices <a href="81-apendice-descenso.html" class="quarto-xref"><span>Apéndice A</span></a> y <a href="82-apendice-descenso-estocastico.html" class="quarto-xref"><span>Apéndice B</span></a>) que consiste en:</p>
 <ul>
 <li>En cada iteración <span class="math inline">\(i\)</span> construimos una función de pérdida <span class="math inline">\(L^{(i)}(f)\)</span> basada solamente en una parte de los datos (<em>batch</em>).</li>
 <li>En cada iteración <span class="math inline">\(i\)</span> sólo nos movemos en una dirección de descenso para los parámetros, sin intentar buscar un mínimo local o global. La dirección de descenso está dada por <span class="math inline">\(-\nabla L^{(i)}\)</span>.</li>
@@ -2510,8 +2522,8 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./99-referencias.html" class="pagination-link" aria-label="Referencias">
-        <span class="nav-page-text">Referencias</span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./81-apendice-descenso.html" class="pagination-link" aria-label="Apéndice 1: descenso en gradiente">
+        <span class="nav-page-text"><span class="chapter-number">A</span>&nbsp; <span class="chapter-title">Apéndice 1: descenso en gradiente</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
