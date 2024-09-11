@@ -1090,11 +1090,10 @@ modelo_red |> compile(
   loss = "mse", metrics = "mse",
   optimizer = optimizer_sgd(learning_rate = 0.01, momentum = 0.9)
 )
-# esto es más eficiente hacerlo con callbacks en general:
 historia <- modelo_red |> fit(
   x = x_grasa, y = y_grasa,
   validation_data = list(x_grasa_pr, y_grasa_pr),
-  batch_size = 30, epochs = 250, verbose = 1)
+  batch_size = 30, epochs = 250, verbose = 0)
 ```
 
 Vemos que con esta red podemos alcanzar un error de entrenamiento cercano 
@@ -1151,7 +1150,7 @@ modelo_red_2 |> compile(loss = "mse",metrics = c("mse"),
 historia <- modelo_red_2 |> fit(
   x = x_grasa, y = y_grasa,
   validation_data = list(x_grasa_pr, y_grasa_pr),
-  batch_size = 30, epochs = 500, verbose = 1)
+  batch_size = 30, epochs = 500, verbose = 0)
 ```
 
 ```{r}
