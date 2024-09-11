@@ -500,7 +500,7 @@ Attaching package: 'Matrix'</code></pre>
 </div>
 <p>Los nuevos coeficientes estimados tienen menor variación, y están más cercanos a los valores reales:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">qplot</span>(coefs_1<span class="sc">$</span>valor[<span class="sc">-</span><span class="dv">1</span>], coefs_penalizado<span class="sc">$</span>estimate[<span class="sc">-</span><span class="dv">1</span>]) <span class="sc">+</span> </span>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">qplot</span>(<span class="at">x =</span> beta<span class="sc">$</span>valor, coefs_penalizado<span class="sc">$</span>estimate[<span class="sc">-</span><span class="dv">1</span>]) <span class="sc">+</span> </span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">'Coeficientes'</span>) <span class="sc">+</span> </span>
 <span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">'Coeficientes estimados'</span>) <span class="sc">+</span></span>
 <span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>()</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -518,7 +518,7 @@ Attaching package: 'Matrix'</code></pre>
 <span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>preds_prueba_ambas <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
 <span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>          preds_prueba <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">tipo =</span> <span class="st">"sin penalizar (prueba)"</span>),</span>
 <span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>          preds_prueba_2 <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">tipo =</span> <span class="st">"penalizado (prueba)"</span>))</span>
-<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(preds_prueba_ambas, <span class="fu">aes</span>(<span class="at">x =</span> y, <span class="at">y =</span> .pred)) <span class="sc">+</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(preds_prueba_ambas, <span class="fu">aes</span>(<span class="at">x =</span> .pred, <span class="at">y =</span> y)) <span class="sc">+</span></span>
 <span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="at">colour =</span> <span class="st">"red"</span>) <span class="sc">+</span></span>
 <span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.3</span>) <span class="sc">+</span> </span>
 <span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"Predicción"</span>) <span class="sc">+</span> <span class="fu">ylab</span>(<span class="st">"y"</span>) <span class="sc">+</span></span>
