@@ -186,7 +186,7 @@ sum(coefs_1$estimate[-1]^2)
 Los nuevos coeficientes estimados tienen menor variación, y están más cercanos a los valores reales:
 
 ```{r, fig.width = 4, fig.height=3}
-qplot(coefs_1$valor[-1], coefs_penalizado$estimate[-1]) + 
+qplot(x = beta$valor, coefs_penalizado$estimate[-1]) + 
   xlab('Coeficientes') + 
   ylab('Coeficientes estimados') +
   geom_abline()
@@ -198,7 +198,7 @@ preds_prueba_2 <- predict(mod_reg, dat_pr) |>
 preds_prueba_ambas <- bind_rows(
           preds_prueba |> mutate(tipo = "sin penalizar (prueba)"),
           preds_prueba_2 |> mutate(tipo = "penalizado (prueba)"))
-ggplot(preds_prueba_ambas, aes(x = y, y = .pred)) +
+ggplot(preds_prueba_ambas, aes(x = .pred, y = y)) +
   geom_abline(colour = "red") +
   geom_point(alpha = 0.3) + 
   xlab("Predicción") + ylab("y") +
