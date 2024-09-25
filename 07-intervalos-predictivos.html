@@ -223,6 +223,12 @@ window.Quarto = {
  <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Clasificación y probabilidad</span></span></a>
   </div>
 </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./09-clasificacion-2.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Decisiones de clasificación</span></span></a>
+  </div>
+</li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">
@@ -299,21 +305,21 @@ window.Quarto = {
 </header>
 
 
-<p>En todos los casos hasta ahora, vimos cómo hacer:</p>
+<p>En todos los casos hasta ahora, hemos visto cómo</p>
 <ul>
-<li>Predicciones puntuales (un solo valor).</li>
+<li>Hacer predicciones puntuales (un solo valor).</li>
 <li>Evaluar un conjunto razonablemente grande de predicciones con el error de predicción, que es un promedio de la pérdida seleccionada.</li>
 </ul>
 <p>Este enfoque es razonable en algunos casos y otros no. Es razonable cuando:</p>
 <ul>
 <li>El error de predicción es relativamente chico (tenemos predicciones muy precisas), y/o los costos de predicciones individuales son bajos, especialmente si comparamos con la mejoría en la automatización y desempeño del proceso.</li>
-<li>Hacemos un gran número de predicciones, ninguna de ellas con costos relativos gigantescos, de forma que el costo promedio representa adecuadamente el desempeño general.</li>
+<li>Hacemos un gran número de predicciones, ninguna de ellas con costos relativos muy grandes, de forma que el costo promedio representa adecuadamente el desempeño general.</li>
 </ul>
 <p>Un ejemplo del primer caso es el de la lectura de medidores: en este caso, nuestro modelo es bastante preciso y las predicciones puntuales son suficientes. Igualmente, al hacer recomendaciones de películas o productos: la automatización en el proceso presenta buenas ganancias, y recomendar una película incorrecta no es grave mientras que en promedio tengamos buenos aciertos.</p>
-<p>Sin embargo, muchos problemas de predicción no son así, y el error de predicciones individuales juega un papel importante:</p>
+<p>Sin embargo, muchos problemas de predicción no son así, y el error de predicciones individuales juegna un papel importante:</p>
 <ul>
 <li>Cuando tomamos decisiones potencialmente costosas con cada predicción individual, de forma que el promedio del error a largo plazo es menos relevante.</li>
-<li>Nuestras predicciones van a usarse <em>downstream</em> para tomar una serie de decisiones que no conocemos de antemano, y en consecuencia la estructura de costos de un error es compleja y sólo parcialmente definida. Ninguna pérdida usual refleja correctamente el costo-beneficio de usar un modelo.</li>
+<li>Nuestras predicciones van a usarse <em>downstream</em> para tomar una serie de decisiones que no conocemos de antemano, y la estructura de costos de un error es compleja y sólo parcialmente definida. Ninguna pérdida usual refleja correctamente el costo-beneficio de usar un modelo.</li>
 </ul>
 <p>Ejemplos del primero puede ser el de predicción de precios de casas: errores de 20% en el precio puede convertir una compra deseable en una que produce pérdidas grandes. En el segundo, un ejemplo es la estimación futura de compras de un cliente (asociado al valor presente de los clientes o usuarios): dependiendo de esta estimación puede ser que tomemos una serie de decisiones distintas acerca de productos, promociones, etc. (no definidos de antemano generalmente) para ofrecer que tienen consecuencias considerables. Otro ejemplo es predecir si en una tomografía hay evidencia de cáncer: aún cuando la probabilidad de que sea una imagen “normal” es alta (digamos 75%), una probablidad de 25% de que sea cancerígena debe ser considerada en decisiones posteriores.</p>
 <p>Otro ejemplo común es el de pronósticos de demanda, donde es importante dar más contexto que una sola predicción puntual: un intervalo de incertidumbre puede mostrar que en algunos casos es muy probable que el inventario se agote, pero en otros casos no. En ambos casos, costos y ganancias complementan esta información.</p>
@@ -323,11 +329,10 @@ window.Quarto = {
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Nota
+Incertidumbre en predicciones
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>#Incertidumbre en predicciones</p>
 <p>En muchos casos, es deseable producir alguna cuantificación de la incertidumbre en predicciones individuales, en lugar de proveer sólo una predicción puntual. Esta cuantificación puede ofrecerse a los tomadores de decisiones, y puede utilizarse también en simulaciones costo-beneficio de decisiones tomadas <em>downstream</em>.</p>
 </div>
 </div>
@@ -352,10 +357,10 @@ Nota
 <li>Construimos con una muestra de entrenamiento <span class="math inline">\((x_i, y_i)\)</span> nuestro predictor <span class="math inline">\(\hat{f}(x)\)</span> (usando cualquier método).</li>
 <li>Usamos una muestra de calibración separada para evaluar el error promedio, y adicionalmente, calculamos los residuales <span class="math inline">\(\mathbf{r}_i = |\mathbf{y}_i - \hat{f}(\mathbf{x}_i)|\)</span></li>
 <li>Si queremos intervalos del 90%, calculamos ahora <span class="math inline">\(q\)</span>, que es el cuantil 90% de los valores <span class="math inline">\(\mathbf{r}_i\)</span></li>
-<li>Para un nuevo valor de las entradas <span class="math inline">\(\mathbf{x}\)</span>, nuestro intervalo es <span class="math display">\[[\hat{f}(\mathbf{x}) - d, \hat{f}(\mathbf{x}) + d]\]</span></li>
+<li>Para un nuevo valor de las entradas <span class="math inline">\(\mathbf{x}\)</span>, nuestro intervalo es <span class="math display">\[[\hat{f}(\mathbf{x}) - q, \hat{f}(\mathbf{x}) + q]\]</span></li>
 </ol>
 <p>Para esta nueva observación <span class="math inline">\((\mathbf{x}, \mathbf{y})\)</span>,</p>
-<p><span class="math display">\[P(\mathbf{y} \in[\hat{f}(\mathbf{x}) - d, \hat{f}(\mathbf{x}) + d])\gtrsim 0.90\]</span></p>
+<p><span class="math display">\[P(\mathbf{y} \in[\hat{f}(\mathbf{x}) - q, \hat{f}(\mathbf{x}) + q])\gtrsim 0.90\]</span></p>
 <p>donde la desigualdad quiere decir que la cobertura es al menos de 90%, y muy cercana a 90% si la muestra de prueba cumple <span class="math inline">\(n\geq 100\)</span>.</p>
 </div>
 </div>
