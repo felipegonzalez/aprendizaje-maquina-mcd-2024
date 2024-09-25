@@ -271,13 +271,8 @@ receta_diabetes <- recipe(type ~ ., diabetes_ent) |>
 # ajustar
 library(keras3)
 mod_1 <- logistic_reg() |> 
-  set_engine("keras") |> 
+  set_engine("glm") |> 
   set_mode("classification") |>
-  set_args(
-    epochs = 250, 
-    optimizer = optimizer_sgd(learning_rate = 0.3),
-    batch_size = nrow(diabetes_ent), 
-    verbose = FALSE) |> 
   fit(type ~ bmi + age, juice(receta_diabetes))
 # otra opcion es
 # mod_1 <- logistic_reg() |> set_engine("glm") |> set_mode("classification")
@@ -479,12 +474,8 @@ de diabetes que incluyen todas las variables:
 
 ```{r}
 mod_2 <- logistic_reg() |> 
-  set_engine("keras") |> 
+  set_engine("glm") |> 
   set_mode("classification") |>
-  set_args(epochs = 250, 
-           optimizer = optimizer_sgd(learning_rate = 0.3),
-           batch_size = nrow(diabetes_ent), 
-           verbose = FALSE) |> 
   fit(type ~ ., juice(receta_diabetes))
 preds_prueba_completo <- predict(
   mod_2, prueba_baked, type ='prob') |> 
