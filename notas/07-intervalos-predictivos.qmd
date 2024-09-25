@@ -9,9 +9,9 @@ scale_colour_discrete <- function(...) {
 }
 ```
 
-En todos los casos hasta ahora, vimos cómo hacer: 
+En todos los casos hasta ahora, hemos visto cómo
 
-- Predicciones puntuales (un solo valor). 
+- Hacer predicciones puntuales (un solo valor). 
 - Evaluar un conjunto razonablemente grande de predicciones 
 con el error de predicción, que es un promedio de la pérdida seleccionada.
 
@@ -20,7 +20,7 @@ Este enfoque es razonable en algunos casos y otros no. Es razonable cuando:
 - El error de predicción es relativamente chico (tenemos predicciones muy precisas), y/o los
 costos de predicciones individuales son bajos, especialmente si
 comparamos con la mejoría en la automatización y desempeño del proceso. 
-- Hacemos un gran número de predicciones, ninguna de ellas con costos relativos gigantescos,
+- Hacemos un gran número de predicciones, ninguna de ellas con costos relativos muy grandes,
 de forma que el costo promedio representa adecuadamente el desempeño general. 
 
 Un ejemplo del primer caso es el de la lectura de medidores: en este caso,
@@ -30,12 +30,12 @@ en el proceso presenta buenas ganancias, y recomendar una película incorrecta n
 es grave mientras que en promedio tengamos buenos aciertos.
 
 Sin embargo, muchos problemas de predicción no son así, y el error de predicciones
-individuales juega un papel importante:
+individuales juegna un papel importante:
 
 - Cuando tomamos decisiones potencialmente costosas con cada predicción individual, 
 de forma que el promedio del error a largo plazo es menos relevante. 
 - Nuestras predicciones van a usarse *downstream* para tomar una serie de decisiones
-que no conocemos de antemano, y en consecuencia la estructura de costos de un error es compleja y sólo parcialmente definida. Ninguna pérdida usual refleja correctamente el costo-beneficio de usar un modelo.
+que no conocemos de antemano, y la estructura de costos de un error es compleja y sólo parcialmente definida. Ninguna pérdida usual refleja correctamente el costo-beneficio de usar un modelo.
 
 Ejemplos del primero puede ser el de predicción de precios de casas: errores de 20\% en
 el precio puede convertir una compra deseable en una que produce pérdidas grandes. En el segundo,
@@ -52,7 +52,7 @@ puede mostrar que en algunos casos es muy probable que el inventario se agote,
 pero en otros casos no. En ambos casos, costos y ganancias complementan esta información.
 
 ::: callout-note
-#Incertidumbre en predicciones
+# Incertidumbre en predicciones
 
 En muchos casos, es deseable producir alguna cuantificación de la incertidumbre 
 en predicciones individuales, en lugar de proveer sólo una predicción puntual.
@@ -101,11 +101,11 @@ calculamos los residuales  $\mathbf{r}_i = |\mathbf{y}_i - \hat{f}(\mathbf{x}_i)
 3. Si queremos intervalos del 90%, calculamos ahora  $q$, que es el cuantil 
 90% de los valores $\mathbf{r}_i$
 3. Para un nuevo valor de las entradas $\mathbf{x}$, nuestro intervalo es
-$$[\hat{f}(\mathbf{x}) - d, \hat{f}(\mathbf{x}) + d]$$
+$$[\hat{f}(\mathbf{x}) - q, \hat{f}(\mathbf{x}) + q]$$
 
 Para esta nueva observación $(\mathbf{x}, \mathbf{y})$,
 
-$$P(\mathbf{y} \in[\hat{f}(\mathbf{x}) - d, \hat{f}(\mathbf{x}) + d])\gtrsim 0.90$$
+$$P(\mathbf{y} \in[\hat{f}(\mathbf{x}) - q, \hat{f}(\mathbf{x}) + q])\gtrsim 0.90$$
   
 donde la desigualdad quiere decir que la cobertura es al menos de 90%, y muy cercana
 a 90% si la muestra de prueba cumple $n\geq 100$. 
