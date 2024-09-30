@@ -2729,15 +2729,15 @@ Residual Deviance: 178.4    AIC: 194.4</code></pre>
 <span id="cb45-27"><a href="#cb45-27" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Epoch 1/10
-1/1 - 0s - 361ms/step - binary_crossentropy: 0.6931 - loss: 0.6931
+1/1 - 0s - 363ms/step - binary_crossentropy: 0.6931 - loss: 0.6931
 Epoch 2/10
 1/1 - 0s - 12ms/step - binary_crossentropy: 0.5875 - loss: 0.5875
 Epoch 3/10
 1/1 - 0s - 12ms/step - binary_crossentropy: 0.5409 - loss: 0.5409
 Epoch 4/10
-1/1 - 0s - 14ms/step - binary_crossentropy: 0.5151 - loss: 0.5151
+1/1 - 0s - 12ms/step - binary_crossentropy: 0.5151 - loss: 0.5151
 Epoch 5/10
-1/1 - 0s - 16ms/step - binary_crossentropy: 0.4987 - loss: 0.4987
+1/1 - 0s - 12ms/step - binary_crossentropy: 0.4987 - loss: 0.4987
 Epoch 6/10
 1/1 - 0s - 12ms/step - binary_crossentropy: 0.4873 - loss: 0.4873
 Epoch 7/10
@@ -2804,8 +2804,8 @@ $loss
 [1,]  0.34734306
 [2,]  1.01705003
 [3,] -0.05472931
-[4,] -0.02247150
-[5,]  0.51263183
+[4,] -0.02247143
+[5,]  0.51263177
 [6,]  0.55927491
 [7,]  0.45200700
 
@@ -2914,13 +2914,12 @@ Probabilidades de clase y pérdida 0-1
 Downloading data from https://storage.googleapis.com/tensorflow/tf-keras-datasets/train-images-idx3-ubyte.gz
 
 [1m       0/26421880[0m [37m━━━━━━━━━━━━━━━━━━━━[0m [1m0s[0m 0s/step
-[1m   98304/26421880[0m [37m━━━━━━━━━━━━━━━━━━━━[0m [1m13s[0m 1us/step
-[1m  540672/26421880[0m [37m━━━━━━━━━━━━━━━━━━━━[0m [1m4s[0m 0us/step 
-[1m 3047424/26421880[0m [32m━━[0m[37m━━━━━━━━━━━━━━━━━━[0m [1m1s[0m 0us/step
-[1m 9568256/26421880[0m [32m━━━━━━━[0m[37m━━━━━━━━━━━━━[0m [1m0s[0m 0us/step
-[1m13549568/26421880[0m [32m━━━━━━━━━━[0m[37m━━━━━━━━━━[0m [1m0s[0m 0us/step
-[1m19988480/26421880[0m [32m━━━━━━━━━━━━━━━[0m[37m━━━━━[0m [1m0s[0m 0us/step
-[1m26421880/26421880[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 0us/step
+[1m  499712/26421880[0m [37m━━━━━━━━━━━━━━━━━━━━[0m [1m2s[0m 0us/step
+[1m 4202496/26421880[0m [32m━━━[0m[37m━━━━━━━━━━━━━━━━━[0m [1m1s[0m 0us/step
+[1m 8396800/26421880[0m [32m━━━━━━[0m[37m━━━━━━━━━━━━━━[0m [1m0s[0m 0us/step
+[1m16785408/26421880[0m [32m━━━━━━━━━━━━[0m[37m━━━━━━━━[0m [1m0s[0m 0us/step
+[1m25288704/26421880[0m [32m━━━━━━━━━━━━━━━━━━━[0m[37m━[0m [1m0s[0m 0us/step
+[1m26421880/26421880[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m1s[0m 0us/step
 Downloading data from https://storage.googleapis.com/tensorflow/tf-keras-datasets/t10k-labels-idx1-ubyte.gz
 
 [1m   0/5148[0m [37m━━━━━━━━━━━━━━━━━━━━[0m [1m0s[0m 0s/step
@@ -2928,9 +2927,6 @@ Downloading data from https://storage.googleapis.com/tensorflow/tf-keras-dataset
 Downloading data from https://storage.googleapis.com/tensorflow/tf-keras-datasets/t10k-images-idx3-ubyte.gz
 
 [1m      0/4422102[0m [37m━━━━━━━━━━━━━━━━━━━━[0m [1m0s[0m 0s/step
-[1m  98304/4422102[0m [37m━━━━━━━━━━━━━━━━━━━━[0m [1m2s[0m 1us/step
-[1m 581632/4422102[0m [32m━━[0m[37m━━━━━━━━━━━━━━━━━━[0m [1m0s[0m 0us/step
-[1m3334144/4422102[0m [32m━━━━━━━━━━━━━━━[0m[37m━━━━━[0m [1m0s[0m 0us/step
 [1m4422102/4422102[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 0us/step</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb65"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a>ropa_entrena <span class="ot">&lt;-</span> ropa_datos<span class="sc">$</span>train </span>
@@ -3014,7 +3010,7 @@ Downloading data from https://storage.googleapis.com/tensorflow/tf-keras-dataset
 <div class="cell">
 <div class="sourceCode cell-code" id="cb72"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a>preds_mat <span class="ot">&lt;-</span> <span class="fu">predict</span>(modelo_ropa, x_prueba)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>313/313 - 0s - 637us/step</code></pre>
+<pre><code>313/313 - 0s - 660us/step</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb74"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(preds_mat)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
