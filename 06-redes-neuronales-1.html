@@ -229,6 +229,18 @@ window.Quarto = {
  <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Decisiones de clasificación</span></span></a>
   </div>
 </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./10-clasificacion-calibracion.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Calibración de probabilidades</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./11-val-cruzada.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Entrenamiento, Validación y Prueba</span></span></a>
+  </div>
+</li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">
@@ -595,7 +607,7 @@ Nota
 <div class="cell">
 <div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>dat_3 <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">x =</span> x, <span class="at">f_2 =</span> <span class="fu">predict</span>(ejemplo_mod, <span class="fu">as.matrix</span>(x, <span class="at">ncol =</span> <span class="dv">1</span>))[,<span class="dv">1</span>])</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>2/2 - 0s - 20ms/step</code></pre>
+<pre><code>2/2 - 0s - 19ms/step</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(dat_3, <span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> f_2)) <span class="sc">+</span> <span class="fu">geom_line</span>()<span class="sc">+</span></span>
 <span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_line</span>(<span class="at">data =</span> dat_f, <span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> f), <span class="at">col=</span><span class="st">'red'</span>) <span class="sc">+</span></span>
@@ -748,7 +760,7 @@ Coefficients:
 <div class="cell">
 <div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>preds_ent <span class="ot">&lt;-</span> <span class="fu">predict</span>(mod_inter, dat_ent <span class="sc">|&gt;</span> <span class="fu">select</span>(x1, x2) <span class="sc">|&gt;</span> <span class="fu">as.matrix</span>())</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>63/63 - 0s - 689us/step</code></pre>
+<pre><code>63/63 - 0s - 685us/step</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tibble</span>(<span class="at">pred =</span> preds_ent[,<span class="dv">1</span>], <span class="at">f =</span> dat_ent<span class="sc">$</span>y) <span class="sc">|&gt;</span> </span>
 <span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> pred, <span class="at">y =</span> f)) <span class="sc">+</span></span>
@@ -1270,7 +1282,7 @@ Ajuste de redes neuronales
 <div class="cell">
 <div class="sourceCode cell-code" id="cb69"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a>preds_2 <span class="ot">&lt;-</span> <span class="fu">predict</span>(modelo_red_2, x_grasa_pr) </span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>4/4 - 0s - 13ms/step</code></pre>
+<pre><code>4/4 - 0s - 12ms/step</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb71"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a>g_2 <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">preds_2 =</span> preds_2[, <span class="dv">1</span>], <span class="at">y =</span> y_grasa_pr) <span class="sc">|&gt;</span> </span>
 <span id="cb71-2"><a href="#cb71-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> preds_2, <span class="at">y =</span> y)) <span class="sc">+</span> </span>
