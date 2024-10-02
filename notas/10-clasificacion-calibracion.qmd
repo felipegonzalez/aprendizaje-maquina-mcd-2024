@@ -291,6 +291,7 @@ cells |> count(class)
 
 ```{r}
 library(probably)
+library(discrim)
 set.seed(128)
 split <- initial_split(cells, strata = class)
 cells_tr <- training(split)
