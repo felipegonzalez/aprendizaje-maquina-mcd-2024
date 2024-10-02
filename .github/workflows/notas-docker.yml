@@ -21,7 +21,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install discrim
         run: |
-          install.packages("disrim")
+          install.packages("discrim")
         shell: Rscript {0}
       - name: Render book
         # Add any command line argument needed
