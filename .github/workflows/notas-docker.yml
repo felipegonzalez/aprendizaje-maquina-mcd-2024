@@ -19,6 +19,10 @@ jobs:
           remotes::install_github("https://github.com/tidymodels/probably/", upgrade = "always", force = TRUE)
         shell: Rscript {0}
       - uses: actions/checkout@v4
+      - name: Install discrim
+        run: |
+          install.packages("disrim")
+        shell: Rscript {0}
       - name: Render book
         # Add any command line argument needed
         run: |
