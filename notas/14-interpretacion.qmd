@@ -768,7 +768,7 @@ sum(shapley_val$results$phi)
 Ahora hacemos otro ejemplo:
 
 ```{r, fig.height=10, fig.width = 10}
-shapley_val <- Shapley$new(predictor, x.interest = casas_entrena[52,])
+shapley_val <- Shapley$new(predictor_bo, x.interest = casas_entrena[52,])
 shapley_val$results <- filter(shapley_val$results, feature %in% vars_usadas)
 shapley_val$plot()
 sum(shapley_val$results$phi)
@@ -777,7 +777,7 @@ sum(shapley_val$results$phi)
 
 
 ```{r, fig.height=10, fig.width = 10}
-shapley_val <- Shapley$new(predictor, x.interest = casas_entrena[121,])
+shapley_val <- Shapley$new(predictor_bo, x.interest = casas_entrena[121,])
 shapley_val$results <- filter(shapley_val$results, feature %in% vars_usadas)
 shapley_val$plot()
 ```
