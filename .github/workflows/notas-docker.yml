@@ -30,6 +30,7 @@ jobs:
       - name: Install vip
         run: |
           install.packages("vip")
+        shell: Rscript {0}
       - name: Install gridExtra
         run: |
           install.packages("gridExtra")
