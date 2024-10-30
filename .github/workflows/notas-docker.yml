@@ -30,6 +30,9 @@ jobs:
       - name: Install vip
         run: |
           install.packages("vip")
+      - name: Install gridExtra
+        run: |
+          install.packages("gridExtra")
         shell: Rscript {0}
       - name: Render book
         # Add any command line argument needed
