@@ -253,6 +253,12 @@ window.Quarto = {
  <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Métodos basados en árboles: boosting</span></span></a>
   </div>
 </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./14-interpretacion.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Interpretación de modelos</span></span></a>
+  </div>
+</li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">
@@ -772,7 +778,7 @@ Coefficients:
 <div class="cell">
 <div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>preds_ent <span class="ot">&lt;-</span> <span class="fu">predict</span>(mod_inter, dat_ent <span class="sc">|&gt;</span> <span class="fu">select</span>(x1, x2) <span class="sc">|&gt;</span> <span class="fu">as.matrix</span>())</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>63/63 - 0s - 689us/step</code></pre>
+<pre><code>63/63 - 0s - 692us/step</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tibble</span>(<span class="at">pred =</span> preds_ent[,<span class="dv">1</span>], <span class="at">f =</span> dat_ent<span class="sc">$</span>y) <span class="sc">|&gt;</span> </span>
 <span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> pred, <span class="at">y =</span> f)) <span class="sc">+</span></span>
@@ -803,7 +809,7 @@ Coefficients:
 <span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">outputs =</span> <span class="fu">get_layer</span>(mod_inter, <span class="st">"capa_intermedia"</span>)<span class="sc">$</span>output)</span>
 <span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>pred_mat <span class="ot">&lt;-</span> <span class="fu">predict</span>(capa_1, mat_entrada) <span class="sc">|&gt;</span> <span class="fu">round</span>(<span class="dv">2</span>)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>1/1 - 0s - 26ms/step</code></pre>
+<pre><code>1/1 - 0s - 21ms/step</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rownames</span>(pred_mat) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"apagadas"</span>, <span class="st">"segunda"</span>, <span class="st">"primera"</span>, <span class="st">"ambas"</span>)</span>
 <span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>pred_mat</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
