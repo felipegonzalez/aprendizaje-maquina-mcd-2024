@@ -338,6 +338,15 @@ window.Quarto = {
   <ul class="collapse">
   <li><a href="#valores-de-shapley" id="toc-valores-de-shapley" class="nav-link" data-scroll-target="#valores-de-shapley"><span class="header-section-number">14.5.1</span> Valores de Shapley</a></li>
   <li><a href="#ejemplo-precios-de-casas-1" id="toc-ejemplo-precios-de-casas-1" class="nav-link" data-scroll-target="#ejemplo-precios-de-casas-1">Ejemplo: precios de casas</a></li>
+  <li><a href="#más-de-importancia-predictiva-1" id="toc-más-de-importancia-predictiva-1" class="nav-link" data-scroll-target="#más-de-importancia-predictiva-1"><span class="header-section-number">14.5.2</span> Más de importancia predictiva</a></li>
+  <li><a href="#ejemplo-3" id="toc-ejemplo-3" class="nav-link" data-scroll-target="#ejemplo-3">Ejemplo</a></li>
+  <li><a href="#resumen-1" id="toc-resumen-1" class="nav-link" data-scroll-target="#resumen-1">Resumen</a></li>
+  </ul></li>
+  <li><a href="#explicación-de-predicciones-1" id="toc-explicación-de-predicciones-1" class="nav-link" data-scroll-target="#explicación-de-predicciones-1"><span class="header-section-number">14.6</span> Explicación de predicciones</a>
+  <ul class="collapse">
+  <li><a href="#valores-de-shapley-1" id="toc-valores-de-shapley-1" class="nav-link" data-scroll-target="#valores-de-shapley-1"><span class="header-section-number">14.6.1</span> Valores de Shapley</a></li>
+  <li><a href="#ejemplo-precios-de-casas-2" id="toc-ejemplo-precios-de-casas-2" class="nav-link" data-scroll-target="#ejemplo-precios-de-casas-2">Ejemplo: precios de casas</a></li>
+  <li><a href="#ejemplo-5" id="toc-ejemplo-5" class="nav-link" data-scroll-target="#ejemplo-5">Ejemplo</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -958,7 +967,404 @@ que es la predicción media (usamos linealidad de <span class="math inline">\(f\
 </section>
 <section id="ejemplo-precios-de-casas-1" class="level3 unnumbered">
 <h3 class="unnumbered anchored" data-anchor-id="ejemplo-precios-de-casas-1">Ejemplo: precios de casas</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"../R/casas_traducir_geo.R"</span>)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 1460 Columns: 81
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+chr (43): MSZoning, Street, Alley, LotShape, LandContour, Utilities, LotConf...
+dbl (38): Id, MSSubClass, LotFrontage, LotArea, OverallQual, OverallCond, Ye...
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+Rows: 27 Columns: 3
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+chr (1): Neighborhood
+dbl (2): lat, long
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">83</span>)</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>casas_split <span class="ot">&lt;-</span> <span class="fu">initial_split</span>(casas, <span class="at">prop =</span> <span class="fl">0.75</span>)</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>casas_entrena <span class="ot">&lt;-</span> <span class="fu">training</span>(casas_split)</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>casas_pr <span class="ot">&lt;-</span> <span class="fu">testing</span>(casas_split)</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>receta_casas <span class="ot">&lt;-</span> <span class="fu">recipe</span>(precio_miles <span class="sc">~</span> </span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>           nombre_zona <span class="sc">+</span> </span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>           area_hab_m2 <span class="sc">+</span> area_garage_m2 <span class="sc">+</span> area_sotano_m2 <span class="sc">+</span> </span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>           area_1er_piso_m2 <span class="sc">+</span> area_2o_piso_m2 <span class="sc">+</span> </span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>           area_lote_m2 <span class="sc">+</span> </span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>           año_construccion <span class="sc">+</span> año_venta <span class="sc">+</span> </span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>           calidad_gral <span class="sc">+</span> calidad_garage <span class="sc">+</span> calidad_sotano <span class="sc">+</span></span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>           condicion_gral <span class="sc">+</span></span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>           num_coches  <span class="sc">+</span> </span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a>           aire_acondicionado <span class="sc">+</span> condicion_venta <span class="sc">+</span></span>
+<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a>           valor_misc_miles <span class="sc">+</span></span>
+<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a>           tipo_edificio <span class="sc">+</span> estilo <span class="sc">+</span> tipo_zona, </span>
+<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a>           <span class="at">data =</span> casas_entrena) <span class="sc">|&gt;</span> </span>
+<span id="cb29-18"><a href="#cb29-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_filter</span>(condicion_venta <span class="sc">==</span> <span class="st">"Normal"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb29-19"><a href="#cb29-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_ratio</span>(area_2o_piso_m2, <span class="at">denom =</span> <span class="fu">denom_vars</span>(area_1er_piso_m2)) <span class="sc">|&gt;</span> </span>
+<span id="cb29-20"><a href="#cb29-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_other</span>(nombre_zona, <span class="at">threshold =</span> <span class="fl">0.01</span>, <span class="at">other =</span> <span class="st">"otras"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb29-21"><a href="#cb29-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_select</span>(<span class="sc">-</span>condicion_venta, <span class="at">skip =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb29-22"><a href="#cb29-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_novel</span>(nombre_zona, calidad_sotano, calidad_garage) <span class="sc">|&gt;</span> </span>
+<span id="cb29-23"><a href="#cb29-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_unknown</span>(calidad_sotano, calidad_garage) <span class="sc">|&gt;</span> </span>
+<span id="cb29-24"><a href="#cb29-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_mutate</span>(<span class="at">area_sotano_m2 =</span> <span class="fu">ifelse</span>(<span class="fu">is.na</span>(area_sotano_m2), <span class="dv">0</span>, area_sotano_m2)) <span class="sc">|&gt;</span> </span>
+<span id="cb29-25"><a href="#cb29-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_mutate</span>(<span class="at">area_garage_m2 =</span> <span class="fu">ifelse</span>(<span class="fu">is.na</span>(area_garage_m2), <span class="dv">0</span>, area_garage_m2)) </span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>modelo_bosque <span class="ot">&lt;-</span> <span class="fu">rand_forest</span>(<span class="at">mtry =</span> <span class="dv">5</span>, <span class="at">trees =</span> <span class="dv">5000</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_engine</span>(<span class="st">"ranger"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_mode</span>(<span class="st">"regression"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_args</span>(<span class="at">respect.unordered.factors =</span> <span class="st">"order"</span>) </span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>flujo_bosque <span class="ot">&lt;-</span> <span class="fu">workflow</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_model</span>(modelo_bosque) <span class="sc">|&gt;</span> </span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_recipe</span>(receta_casas)</span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>bosque_ajustado <span class="ot">&lt;-</span> <span class="fu">fit</span>(flujo_bosque, casas_entrena) </span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(iml)</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="co"># necesitamos esta función para el paquete iml</span></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>pred_iml <span class="ot">&lt;-</span> <span class="cf">function</span>(model, newdata){</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>   <span class="fu">predict</span>(model, <span class="at">new_data =</span> newdata) <span class="sc">|&gt;</span> <span class="fu">pull</span>(.pred)</span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>predictor <span class="ot">&lt;-</span> Predictor<span class="sc">$</span><span class="fu">new</span>(<span class="at">model =</span> bosque_ajustado, <span class="at">data =</span> casas_pr, </span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> <span class="st">"precio_miles"</span>, <span class="at">predict.fun =</span> pred_iml)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Haremos nuestra comparación en la métrica de error porcentual promedio. Hacemos varias repeticiones para suavizar la variación que produce el hecho de que tomamos permutaciones al azar de las variables:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>vars_usadas <span class="ot">&lt;-</span> <span class="fu">extract_preprocessor</span>(bosque_ajustado) <span class="sc">|&gt;</span> <span class="fu">pluck</span>(<span class="st">"var_info"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(role <span class="sc">==</span> <span class="st">"predictor"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pull</span>(variable)</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>imp_bosque <span class="ot">&lt;-</span> FeatureImp<span class="sc">$</span><span class="fu">new</span>(predictor, <span class="at">loss =</span> <span class="st">"mape"</span>,  </span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>                             <span class="at">compare =</span> <span class="st">"difference"</span>, <span class="at">n.repetitions =</span> <span class="dv">5</span>, <span class="at">features =</span> vars_usadas)</span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>importancias <span class="ot">&lt;-</span> imp_bosque<span class="sc">$</span>results <span class="sc">|&gt;</span> </span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">feature =</span> <span class="fu">fct_reorder</span>(feature, importance))</span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(importancias, <span class="fu">aes</span>(<span class="at">x =</span> feature, <span class="at">y =</span> importance)) <span class="sc">+</span></span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">colour =</span> <span class="st">"salmon"</span>) <span class="sc">+</span></span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_point</span>() <span class="sc">+</span> <span class="fu">coord_flip</span>()</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="14-interpretacion_files/figure-html/unnamed-chunk-27-1.png" class="img-fluid figure-img" width="576"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Podemos usar muestras bootstrap para repetir varias veces el análisis, y tener rangos de error debidos a la variación en la muestra de prueba. Por ejemplo, con 10 repeticiones bootstrap obtenemos rangos de variación (la muestra de prueba es de alrededor de 350 casos):</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">12</span>)</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>replica_boot <span class="ot">&lt;-</span> <span class="cf">function</span>(datos, modelo, respuesta, vars_usadas){</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>    datos_boot <span class="ot">&lt;-</span> <span class="fu">sample_n</span>(datos, <span class="fu">nrow</span>(datos), <span class="at">replace =</span> T)</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>    predictor <span class="ot">&lt;-</span> Predictor<span class="sc">$</span><span class="fu">new</span>(<span class="at">model =</span> modelo, <span class="at">data =</span> datos_boot, <span class="at">y =</span> respuesta, </span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>            <span class="at">predict.fun =</span> pred_iml)</span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>    imp_bosque <span class="ot">&lt;-</span> FeatureImp<span class="sc">$</span><span class="fu">new</span>(predictor, <span class="at">loss =</span> <span class="st">"mape"</span>, </span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>        <span class="at">compare =</span> <span class="st">"difference"</span>, <span class="at">n.repetitions =</span> <span class="dv">1</span>, <span class="at">features =</span> vars_usadas)</span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>    importancias <span class="ot">&lt;-</span> imp_bosque<span class="sc">$</span>results </span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>    importancias</span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a>reps <span class="ot">&lt;-</span> purrr<span class="sc">::</span><span class="fu">map</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>, <span class="sc">~</span> <span class="fu">replica_boot</span>(casas_pr, bosque_ajustado, <span class="st">"precio_miles"</span>, vars_usadas)) <span class="sc">|&gt;</span> </span>
+<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_rows</span>()</span>
+<span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a>reps <span class="ot">&lt;-</span> reps <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">feature =</span> <span class="fu">fct_reorder</span>(feature, importance, mean))</span>
+<span id="cb33-15"><a href="#cb33-15" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(reps, <span class="fu">aes</span>(<span class="at">x =</span> feature, <span class="at">y =</span> importance)) <span class="sc">+</span></span>
+<span id="cb33-16"><a href="#cb33-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">colour =</span> <span class="st">"salmon"</span>) <span class="sc">+</span></span>
+<span id="cb33-17"><a href="#cb33-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_point</span>() <span class="sc">+</span> <span class="fu">coord_flip</span>() <span class="sc">+</span> </span>
+<span id="cb33-18"><a href="#cb33-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_boxplot</span>()</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="14-interpretacion_files/figure-html/unnamed-chunk-28-1.png" class="img-fluid figure-img" width="576"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="más-de-importancia-predictiva-1" class="level3" data-number="14.5.2">
+<h3 data-number="14.5.2" class="anchored" data-anchor-id="más-de-importancia-predictiva-1"><span class="header-section-number">14.5.2</span> Más de importancia predictiva</h3>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Interpretación de importancia
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li>La interpretación de importancia es siempre condicional a la muestra de entrenamiento. y al forma particular del modelo.</li>
+<li>Distintos hiperparámetros de ajuste, en particular, pueden producir estructuras de importancia distintas.</li>
+</ul>
+</div>
+</div>
+<p>En el siguiente ejemplo probamos qué pasa con inclusión/exclusión de variables, o modelando o no la interacción:</p>
+</section>
+<section id="ejemplo-3" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="ejemplo-3">Ejemplo</h3>
+<p>Consideramos un modelo con 4 entradas. La forma funcional verdadera es lineal, con una interacción entre <span class="math inline">\(x1\)</span> y <span class="math inline">\(x2\)</span></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">200</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">88</span>)</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>dat_tbl <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">x_1 =</span> <span class="fu">rnorm</span>(n, <span class="dv">0</span>, <span class="dv">1</span>), </span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>                  <span class="at">x_2 =</span> <span class="fu">sample</span>(<span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), n, <span class="at">replace =</span> T),</span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>                  <span class="at">x_3 =</span> <span class="fu">rnorm</span>(n, <span class="dv">0</span>, <span class="dv">1</span>),</span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>                  <span class="at">x_4 =</span> <span class="fu">rnorm</span>(n, x_1, <span class="fl">0.2</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">y =</span>  x_1 <span class="sc">+</span> <span class="dv">2</span><span class="sc">*</span>x_4 <span class="sc">+</span> x_3 <span class="sc">+</span> <span class="dv">2</span><span class="sc">*</span>x_1<span class="sc">*</span>x_2 <span class="sc">+</span> <span class="fu">rnorm</span>(n, <span class="dv">0</span> , <span class="fl">0.2</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">tipo =</span> <span class="fu">sample</span>(<span class="fu">c</span>(<span class="st">"entrena"</span>, <span class="st">"valida"</span>), n, <span class="at">replace =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a>valida_tbl <span class="ot">&lt;-</span> dat_tbl <span class="sc">|&gt;</span> <span class="fu">filter</span>(tipo <span class="sc">==</span> <span class="st">"valida"</span>)</span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a>importancias <span class="ot">&lt;-</span> <span class="cf">function</span>(valida_tbl, mod){</span>
+<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a>    x <span class="ot">&lt;-</span> valida_tbl <span class="sc">|&gt;</span> dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="sc">-</span>y, <span class="sc">-</span>tipo)</span>
+<span id="cb34-12"><a href="#cb34-12" aria-hidden="true" tabindex="-1"></a>    predictor_1 <span class="ot">&lt;-</span> Predictor<span class="sc">$</span><span class="fu">new</span>(<span class="at">model =</span> mod, </span>
+<span id="cb34-13"><a href="#cb34-13" aria-hidden="true" tabindex="-1"></a>        <span class="at">data =</span> x, <span class="at">y =</span> valida_tbl<span class="sc">$</span>y, </span>
+<span id="cb34-14"><a href="#cb34-14" aria-hidden="true" tabindex="-1"></a>        <span class="at">class =</span> <span class="st">"regression"</span>)</span>
+<span id="cb34-15"><a href="#cb34-15" aria-hidden="true" tabindex="-1"></a>    imp <span class="ot">&lt;-</span> FeatureImp<span class="sc">$</span><span class="fu">new</span>(predictor_1, <span class="at">loss =</span> <span class="st">"rmse"</span>, </span>
+<span id="cb34-16"><a href="#cb34-16" aria-hidden="true" tabindex="-1"></a>        <span class="at">compare =</span> <span class="st">"difference"</span>, <span class="at">n.repetitions =</span> <span class="dv">20</span>)</span>
+<span id="cb34-17"><a href="#cb34-17" aria-hidden="true" tabindex="-1"></a>    imp</span>
+<span id="cb34-18"><a href="#cb34-18" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb34-19"><a href="#cb34-19" aria-hidden="true" tabindex="-1"></a>graficar_imp <span class="ot">&lt;-</span> <span class="cf">function</span>(imp){</span>
+<span id="cb34-20"><a href="#cb34-20" aria-hidden="true" tabindex="-1"></a>    imp_tbl <span class="ot">&lt;-</span> imp<span class="sc">$</span>results<span class="co"># |&gt; mutate(feature = fct_reorder(feature, importance))</span></span>
+<span id="cb34-21"><a href="#cb34-21" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggplot</span>(imp_tbl, <span class="fu">aes</span>(<span class="at">x =</span> feature, <span class="at">y =</span> importance, <span class="at">ymax =</span> importance, <span class="at">ymin=</span> <span class="dv">0</span>)) <span class="sc">+</span></span>
+<span id="cb34-22"><a href="#cb34-22" aria-hidden="true" tabindex="-1"></a>        <span class="fu">geom_point</span>() <span class="sc">+</span> <span class="fu">geom_linerange</span>() <span class="sc">+</span> <span class="fu">coord_flip</span>()</span>
+<span id="cb34-23"><a href="#cb34-23" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co"># sin interacción</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>mod_1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(y <span class="sc">~</span> x_1 <span class="sc">+</span> x_2 <span class="sc">+</span> x_3 <span class="sc">+</span> x_4, dat_tbl <span class="sc">|&gt;</span> <span class="fu">filter</span>(tipo <span class="sc">==</span> <span class="st">"entrena"</span>))</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>imp_1 <span class="ot">&lt;-</span> <span class="fu">importancias</span>(valida_tbl, mod_1)</span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>g_1 <span class="ot">&lt;-</span> <span class="fu">graficar_imp</span>(imp_1) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">subtitle =</span> <span class="st">"Sin interacciones"</span>)</span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>mod_1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(y <span class="sc">~</span> x_1 <span class="sc">+</span> x_2 <span class="sc">+</span> x_3, dat_tbl <span class="sc">|&gt;</span> <span class="fu">filter</span>(tipo <span class="sc">==</span> <span class="st">"entrena"</span>))</span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>imp_1 <span class="ot">&lt;-</span> <span class="fu">importancias</span>(valida_tbl, mod_1)</span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>g_0 <span class="ot">&lt;-</span> <span class="fu">graficar_imp</span>(imp_1) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">subtitle =</span> <span class="st">"Sin interacciones/ sin x4"</span>)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="co"># con interacción</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>mod_2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(y <span class="sc">~</span> x_1 <span class="sc">+</span> x_2 <span class="sc">+</span> x_3 <span class="sc">+</span> x_4 <span class="sc">+</span> x_1<span class="sc">*</span>x_2 <span class="sc">+</span> x_2<span class="sc">*</span>x_3, </span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>            dat_tbl <span class="sc">|&gt;</span> <span class="fu">filter</span>(tipo <span class="sc">==</span> <span class="st">"entrena"</span>))</span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>imp_2 <span class="ot">&lt;-</span> <span class="fu">importancias</span>(valida_tbl, mod_2)</span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>g_2 <span class="ot">&lt;-</span> <span class="fu">graficar_imp</span>(imp_2) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">subtitles =</span> <span class="st">"Con interacciones"</span>)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong>Observacion</strong>: La interpretación de importancia es siempre condicional al total de variables en el modelo. La inclusión o exclusión (o existencia o no de variables disponibles) de variables puede producir importancias muy distintas</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>mod_3 <span class="ot">&lt;-</span> <span class="fu">lm</span>(y <span class="sc">~</span> x_1 <span class="sc">+</span> x_2 <span class="sc">+</span> x_3 <span class="sc">+</span> x_1<span class="sc">*</span>x_2 <span class="sc">+</span> x_2<span class="sc">*</span>x_3, </span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>            dat_tbl <span class="sc">|&gt;</span> <span class="fu">filter</span>(tipo <span class="sc">==</span> <span class="st">"entrena"</span>))</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>imp_3 <span class="ot">&lt;-</span> <span class="fu">importancias</span>(valida_tbl, mod_3)</span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>g_3 <span class="ot">&lt;-</span> <span class="fu">graficar_imp</span>(imp_3)<span class="sc">+</span> <span class="fu">labs</span>(<span class="at">subtitles =</span> <span class="st">"Con interacciones / sin x4"</span>)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gridExtra)</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>grafs <span class="ot">&lt;-</span> <span class="fu">list</span>(g_0, g_1, g_3, g_2) <span class="sc">|&gt;</span> purrr<span class="sc">::</span><span class="fu">map</span>(<span class="cf">function</span>(g){ g <span class="sc">+</span> <span class="fu">ylim</span>(<span class="fu">c</span>(<span class="sc">-</span><span class="fl">0.5</span>, <span class="dv">5</span>)) })</span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a><span class="fu">grid.arrange</span>(<span class="at">grobs =</span> grafs, <span class="at">ncol =</span> <span class="dv">2</span>)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="14-interpretacion_files/figure-html/unnamed-chunk-33-1.png" class="img-fluid figure-img" width="576"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="resumen-1" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="resumen-1">Resumen</h3>
+<ul>
+<li>La importancia por permutaciones muestra en qué variables se está apoyando el modelo para obtener su desempeño predictivo.</li>
+<li>La importancia de variables por permutaciones es una descripción del modelo particular que estamos considerando. Debemos tener cuidado al interpretar estas importancias de forma causal para el problema de interés.</li>
+<li>Esta técnica se puede aplicar a cualquier predictor usando una muestra de validación o prueba. También es posible utilizarla con la muestra de entrenamiento, y las dos versiones (entrenamiento y validación) pueden dar información útil.</li>
+</ul>
+</section>
+</section>
+<section id="explicación-de-predicciones-1" class="level2" data-number="14.6">
+<h2 data-number="14.6" class="anchored" data-anchor-id="explicación-de-predicciones-1"><span class="header-section-number">14.6</span> Explicación de predicciones</h2>
+<p>Una tarea común que se puede requerir para transparentar las predicciones es distribuir contribuciones a la predicción de cada variable.</p>
+<p>Consideremos una predictor <span class="math inline">\(f(X)\)</span>, y hacemos una predicción <span class="math inline">\(f(x)\)</span> para un caso <span class="math inline">\(x = (x_1,x_2,\ldots, x_p)\)</span> particular. ¿Cómo contribuye cada variable a la predicción f(x)?</p>
+<p>Una manera común (ojo: no es la única) de asignar contribuciones si el modelo es lineal y no tiene interacciones es la siguiente:</p>
+<p>Si <span class="math inline">\(f(X_1,\ldots, X_p) = \beta_0 + \beta_1 X_1 + \cdots + \beta_p X_p\)</span> , y <span class="math inline">\(x^* = (x_1^*,x_2^*,\ldots, x_p^*)\)</span> es un caso o instancia particular, podemos definir la contribución <span class="math inline">\(\phi_j = \phi_j (x^*)\)</span> de la variable <span class="math inline">\(j\)</span> en la predicción como</p>
+<p><span class="math display">\[\phi_j  = \beta_j(x_j^* - \mu_j),\]</span> donde <span class="math inline">\(\mu_j\)</span> es la media de la variable <span class="math inline">\(x_j\)</span> (por ejemplo en el conjunto de entrenamiento). Podemos también definir fácilmente la contribución de un subconjunto <span class="math inline">\(W\)</span> de variables dada, como <span class="math display">\[\phi_W (x) = \sum_{j\in W} \beta_j(x_j^* - \mu_j)\]</span>.</p>
+<p><em>Contribución</em> es un buen nombre para estas cantidades, pues satisfacen (usando la linealidad y las definiciones de arriba):</p>
+<ul>
+<li>Las contribuciones suman la diferencia de la predicción con la predicción media: <span class="math display">\[\sum_j \phi_j(x) = f(x) - E(f(x))\]</span></li>
+<li>Si una variable satisface <span class="math inline">\(\phi_W (x) = \phi_{W\cup j} (x)\)</span> para cualquier subconjunto de variables <span class="math inline">\(W\)</span>, entonces <span class="math inline">\(\phi_j\)</span> es cero.</li>
+<li>Si nuestro predictor se puede escribir como <span class="math inline">\(f(x) = f_1(x) + f_2(x)\)</span> entonces la contribución de cada variable en la predicción <span class="math inline">\(f(x)\)</span> es la suma de las contribución en <span class="math inline">\(f_1\)</span> y en <span class="math inline">\(f_2\)</span></li>
+<li>Para cualquier subconjunto de variables, podemos considerar la contribución de una variable <span class="math inline">\(j\)</span> cuando agregamos al subcojunto la variable <span class="math inline">\(j\)</span> como <span class="math inline">\(\phi_{W \cup j} (x) - \phi_W (x)\)</span>. Si para cualquier subconjunto <span class="math inline">\(W\)</span> tenemos que las variables <span class="math inline">\(j\)</span> y <span class="math inline">\(k\)</span> tienen la misma contribución al agregarlos a <span class="math inline">\(W\)</span> (para toda <span class="math inline">\(W\)</span>), entonces <span class="math inline">\(\phi_j =\phi_k\)</span>.</li>
+</ul>
+<p>Ahora la pregunta es: ¿cómo definimos las contribuciones para un predictor <span class="math inline">\(f\)</span> más complejo? (por ejemplo, un bosque aleatorio). Resulta que el concepto de contribución o atribución es uno que se estudia en teoría de juegos, y se puede demostrar que hay una sola forma de hacerlo cumpliendo las propiedades señaladas arriba: mediante los <a href="https://en.wikipedia.org/wiki/Shapley_value">valores de Shapley</a>.</p>
+<p>Antes de seguir, veremos las dificultades que podemos encontrar para definir la atribución o contribuciones:</p>
+<section id="ejemplo-4" class="level4 unnumbered">
+<h4 class="unnumbered anchored" data-anchor-id="ejemplo-4">Ejemplo</h4>
+<p>Consideramos un modelo lineal para empezar. Por ejemplo <span class="math display">\[f(x_1, x_2) = \beta_0 + \beta_1 x_1 + \beta_2 x_2,\]</span> ¿Cómo podemos atribuir contribuciones de <span class="math inline">\(x_1\)</span> y <span class="math inline">\(x_2\)</span> para una entrada particular <span class="math inline">\(x^* = (x_1^*, x_2^*).\)</span></p>
+<p>En primer lugar, podríamos ver qué pasa cuando pensamos que no tenemos ninguna variable disponible. Esta cantidad la podríamos definir como (promediando sobre la muestra de entrenamiento): <span class="math display">\[v(0) = \frac{1}{N}\sum_i f(x_1^{(i)},x_2^{(i)}) = \beta_0 + \beta_1 \bar{x_1} + \beta_2\bar{x_2}\]</span><br>
+que es la predicción media (usamos linealidad de <span class="math inline">\(f\)</span>).</p>
+<p>Ahora supongamos que usamos la variable <span class="math inline">\(x_1\)</span>. En este caso, podríamos calcular una predicción promediando sobre la variable <span class="math inline">\(x_2\)</span>, que no tenemos disponible:</p>
+<p><span class="math display">\[v(1) = \frac{1}{N}\sum_i f(x_1^{*},x_2^{(i)}) = \beta_0 + \beta_1 x_1^* + \beta_2\bar{x_2}\]</span> Entonces la contribución cuando agregamos la variable 1 es: <span class="math display">\[v(1) -v(0) = \beta_1(x_1^* - \bar{x_1})\]</span> Ahora supongamos que ya tenemos la variable 2, y agregamos la variable 1. La predicción con todas las variables es <span class="math display">\[v(1,2) = \beta_0 + \beta_1 x_1^* + \beta_2 x_2^*\]</span> y cuando solo tenemos la variable <span class="math inline">\(2\)</span> es <span class="math display">\[v(2) = \frac{1}{N}\sum_i f(x_1^{(i)},x_2^{*}) = \beta_0 + \beta_1\bar{x_1} + \beta_2 x_2^*, \]</span> y la contribución en este caso es: <span class="math display">\[v(1,2) - v(2) = \beta_1 (x_1^* - \bar{x_1}),\]</span> que es la misma cantidad que <span class="math inline">\(v(1)-v(0)\)</span>. Así que no importa como “incluyamos” la variable 1 bajo este criterio, el resultado es el mismo, y podemos definir la contribución de <span class="math inline">\(x_1\)</span> como definimos arriba para un predictor lineal.</p>
+<p>Ahora consideremos el caso más complicado donde tenemos una interacción multiplicativa:</p>
+<p><span class="math display">\[f(x_1, x_2) = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \beta_3x_1x_2\]</span></p>
+<p>Veremos qué pasa cuando seguimos la misma idea de arriba: en primer lugar, tenemos</p>
+<p><span class="math display">\[v(0) = \frac{1}{N}\sum_i f(x_1^{(i)},x_2^{(i)}) =
+\beta_0 + \beta_1 \overline{x_1} + \beta_2\overline{x_2} + \beta_3\overline{x_1x_2}\]</span></p>
+<p>y <span class="math display">\[v(1) = \frac{1}{N}\sum_i f(x_1^{*},x_2^{(i)}) = \beta_0 + \beta_1 x_1^* + \beta_2\bar{x_2} + (\beta_3  \bar{x_2})x_1^*\]</span> La contribución sería <span class="math display">\[v(1)-v(0) = \beta_1(x_1^* - \bar{x_1}) +\beta_3\bar{x_2}\left(x_1^*-\frac{\overline{x_1x_2}}{\bar{x_2}}\right)\]</span> Por otro lado, igual que arriba</p>
+<p><span class="math display">\[v(2) = \frac{1}{N}\sum_i f(x_1^{(i)},x_2^{*}) = \beta_0 + \beta_1\bar{x_1} + \beta_2 x_2^* + \beta_3x_2^*\bar{x_1}\]</span></p>
+<p>y entonces: <span class="math display">\[v(1,2) - v(2) = \beta_1(x_1^*-\bar{x_1})+ \beta_3x_2^*(x_1^* - \bar{x_1})\]</span> Y las cantidades <span class="math inline">\(v(1) - v(0)\)</span> y <span class="math inline">\(v(1,2)- v(2)\)</span> no son iguales en este caso. Tenemos dos órdenes distintos para poner las variables en el modelo, así que ponemos:</p>
+<p><span class="math display">\[\phi_1 = \frac{1}{2}(v(1,2)-v(2)) + \frac{1}{2}(v(1)-v(0)).\]</span> y análogamente para <span class="math display">\[\phi_2 = \frac{1}{2}(v(1,2)-v(1)) + \frac{1}{2}(v(2)-v(0)).\]</span></p>
+<p>Nótese que estas cantidades satisfacen: <span class="math inline">\(\phi_1 + \phi_2 = v(1,2) -v(0) = f(x_1^*, x_2^*) - \frac{1}{N}\sum_i f(x_1^{(i)}, x_2^{(i)}),\)</span></p>
+<p>es decir, la diferencia entre la predicción que nos interesa y la predicción media, que es la primera propiedad que buscábamos.</p>
+<p>Consideremos ahora el caso de 3 variables, y nos interesa encontrar la contribución de la variable 1. Ahora tenemos 6 órdenes distintos para poner las variables en el predictor. Dos de ellos terminan con <span class="math inline">\(v(1,2,3) - v(2,3)\)</span>, uno de ellos contiene la comparación <span class="math inline">\(v(1,2)-v(2)\)</span>, uno de ellos contiene la comparación <span class="math inline">\(v(1,3)-v(3)\)</span> y dos de ellos contiene la comparación <span class="math inline">\(v(1)-v(0)\)</span>. Así que ponderaríamos:</p>
+<p><span class="math display">\[\phi_1 = \frac{2}{6}(v(1,2,3) - v(2,3)) + \frac{1}{6}(v(1,2)-v(2)) + \frac{1}{6}(v(1,3)-v(3)) + \frac{2}{6}(v(1)-v(0))\]</span> Puedes checar que <span class="math inline">\(\phi_1+ \phi_2 +\phi_3 = f(x_1^*, x_2^*, x_3^*) - \frac{1}{N}\sum_i f(x_1^{(i)}, x_2^{(i)}, x_3^{(i)})\)</span>. Los valores así definidos satisfacen todas las propiedades que discutimos arriba.</p>
+</section>
+<section id="valores-de-shapley-1" class="level3" data-number="14.6.1">
+<h3 data-number="14.6.1" class="anchored" data-anchor-id="valores-de-shapley-1"><span class="header-section-number">14.6.1</span> Valores de Shapley</h3>
+<p>La idea principal en los valores de Shapley es que para entender la contribución de una variable, es necesario considerar su contribución según distintos órdenes en el que consideramos las variables.</p>
+<p>Definimos primero la <em>contribución</em> de un conjunto de variables <span class="math inline">\(S\subset M,\)</span> donde <span class="math inline">\(M =\{x_1, x_2\ldots, x_p\}\)</span>, marginalizando como sigue con la muestra de entrenamiento:</p>
+<p>Suponiendo que <span class="math inline">\(S = \{1,2,3,\ldots ,k\}\)</span> entonces <span class="math display">\[v(S) = \frac{1}{N}\sum_i f(x_1^*,x_2^*,\ldots, x_k^*, x_k^{(i)}, x_{k+1}^{(i)}, \ldots, x_p^{(i)})\]</span> Donde se mantienen fijos los elementos de <span class="math inline">\(S\)</span>, y promediamos sobre los elementos que no están en <span class="math inline">\(S\)</span>. Esto podemos hacerlo para cualquier subconjunto <span class="math inline">\(S\)</span> de variables. Ahora consideramos una variable dada <span class="math inline">\(j\)</span>, y consideramos las diferencias: <span class="math display">\[v(S\cup {j}) - v(S)\]</span> Es decir, cuánto contribuye la variable <span class="math inline">\(j\)</span> cuando la agregamos a las variables que ya teníamos en <span class="math inline">\(S\)</span>.</p>
+<p>El valor de Shapley de la variable <span class="math inline">\(j\)</span> es</p>
+<p><span class="math display">\[\phi_j = \sum_{S\subset M, j\notin S} \frac{|S|!(M - |S| -1)!}{M!} (v(S\cup j) -v(S))\]</span></p>
+<p>Los ponderadores están dados como discutimos arriba: hay <span class="math inline">\(M!\)</span> posibles ordenamientos de las variables. Los ordenamientos que incluyen la comparación <span class="math inline">\(v(S\cup j) -v(S)\)</span> satisfacen: las primeras <span class="math inline">\(|S|\)</span> variables pueden haber entrado de <span class="math inline">\(|S|!\)</span> maneras, luego sigue la <span class="math inline">\(j\)</span>, y el restante de las variables pueden entrar de <span class="math inline">\((M-|S|-1)!\)</span> maneras.</p>
+</section>
+<section id="ejemplo-precios-de-casas-2" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="ejemplo-precios-de-casas-2">Ejemplo: precios de casas</h3>
 <p>Consideremos entonces el bosque que construimos arriba para los precios de casas, y consideramos una casa particular:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">232</span>)</span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>shapley_val <span class="ot">&lt;-</span> Shapley<span class="sc">$</span><span class="fu">new</span>(predictor, <span class="at">x.interest =</span> casas_entrena[<span class="dv">21</span>,])</span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>shapley_val<span class="sc">$</span>results <span class="ot">&lt;-</span> <span class="fu">filter</span>(shapley_val<span class="sc">$</span>results, feature <span class="sc">%in%</span> vars_usadas)</span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>shapley_val<span class="sc">$</span><span class="fu">plot</span>()</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="14-interpretacion_files/figure-html/unnamed-chunk-34-1.png" class="img-fluid figure-img" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>La suma de los valores phi da (aproximadamente, por el algoritmo usado) la diferencia entre nuestra predicción para esta instancia y la predicción promedio:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(shapley_val<span class="sc">$</span>results<span class="sc">$</span>phi)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] -10.40783</code></pre>
+</div>
+</div>
+<p>Ahora hacemos otro ejemplo:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>shapley_val <span class="ot">&lt;-</span> Shapley<span class="sc">$</span><span class="fu">new</span>(predictor, <span class="at">x.interest =</span> casas_entrena[<span class="dv">52</span>,])</span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>shapley_val<span class="sc">$</span>results <span class="ot">&lt;-</span> <span class="fu">filter</span>(shapley_val<span class="sc">$</span>results, feature <span class="sc">%in%</span> vars_usadas)</span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>shapley_val<span class="sc">$</span><span class="fu">plot</span>()</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="14-interpretacion_files/figure-html/unnamed-chunk-36-1.png" class="img-fluid figure-img" width="960"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(shapley_val<span class="sc">$</span>results<span class="sc">$</span>phi)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] -47.69727</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>shapley_val <span class="ot">&lt;-</span> Shapley<span class="sc">$</span><span class="fu">new</span>(predictor, <span class="at">x.interest =</span> casas_entrena[<span class="dv">121</span>,])</span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>shapley_val<span class="sc">$</span>results <span class="ot">&lt;-</span> <span class="fu">filter</span>(shapley_val<span class="sc">$</span>results, feature <span class="sc">%in%</span> vars_usadas)</span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>shapley_val<span class="sc">$</span><span class="fu">plot</span>()</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="14-interpretacion_files/figure-html/unnamed-chunk-37-1.png" class="img-fluid figure-img" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Observaciones</strong>:</p>
+<ul>
+<li><p>Nótese que las contribuciones de cada variable en un mismo nivel puede ser diferente en diferentes instancias, pues los modelos que usamos típicamente incluyen interacciones.</p></li>
+<li><p>Calcular sobre todas las posibles permutaciones de las variables es demasiado costoso. Para estimar el valor de Shapley, en <em>iml</em> se toma una muestra de permutaciones, y para cada una se calcula el valor correspondiente <span class="math inline">\(v(S\cup j) - v(S),\)</span> dependiendo dónde aparece <span class="math inline">\(j\)</span>, y promediando sobre las variables que no aparecen en <span class="math inline">\(S\)</span> como mostramos arriba. No es necesario ponderar la muestra de permutaciones.</p></li>
+<li><p>Existen también versiones adaptadas a los árboles que son más rápìdas.</p></li>
+</ul>
+</section>
+<section id="ejemplo-5" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="ejemplo-5">Ejemplo</h3>
+<p>Para un modelo de clasificación, xgboost calcula los valores de shapley en la escala logit (del predictor lineal)</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(xgboost)</span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>nse_tbl <span class="ot">&lt;-</span> nse_entrena <span class="sc">%&gt;%</span> ungroup <span class="sc">%&gt;%</span> </span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">select</span>(ab, conex_inte, ocupados, </span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>                  num_tvd, educa_jefe, tam_loc, combustible, num_auto)</span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a>mat_x <span class="ot">&lt;-</span> <span class="fu">model.matrix</span>(ab <span class="sc">~</span> <span class="sc">-</span><span class="dv">1</span> <span class="sc">+</span> ., nse_tbl)</span>
+<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a>d_entrena <span class="ot">&lt;-</span> <span class="fu">xgb.DMatrix</span>(<span class="at">data =</span> mat_x, <span class="at">label =</span> nse_tbl<span class="sc">$</span>ab)</span>
+<span id="cb46-7"><a href="#cb46-7" aria-hidden="true" tabindex="-1"></a>boost_nse <span class="ot">&lt;-</span> <span class="fu">xgboost</span>(mat_x, <span class="at">label =</span> <span class="fu">as.numeric</span>(nse_tbl<span class="sc">$</span>ab <span class="sc">==</span> <span class="st">"1"</span>), </span>
+<span id="cb46-8"><a href="#cb46-8" aria-hidden="true" tabindex="-1"></a>                     <span class="at">nrounds =</span> <span class="dv">500</span>, <span class="at">eta =</span> <span class="fl">0.1</span>, </span>
+<span id="cb46-9"><a href="#cb46-9" aria-hidden="true" tabindex="-1"></a>                     <span class="at">max_depth =</span> <span class="dv">3</span>, <span class="at">subsample =</span> .<span class="dv">5</span>,</span>
+<span id="cb46-10"><a href="#cb46-10" aria-hidden="true" tabindex="-1"></a>              <span class="at">objective =</span> <span class="st">"binary:logistic"</span>, <span class="at">nthread =</span> <span class="dv">2</span>, <span class="at">verbose =</span> <span class="dv">0</span>)</span>
+<span id="cb46-11"><a href="#cb46-11" aria-hidden="true" tabindex="-1"></a>shap_nse <span class="ot">&lt;-</span> <span class="fu">xgb.plot.shap</span>(mat_x, <span class="at">model =</span> boost_nse, <span class="at">top_n =</span> <span class="dv">8</span>, <span class="at">n_col =</span> <span class="dv">2</span>)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="14-interpretacion_files/figure-html/unnamed-chunk-38-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>pred_base <span class="ot">&lt;-</span> <span class="fu">mean</span>(nse_tbl<span class="sc">$</span>ab<span class="sc">==</span><span class="dv">1</span>)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> shap_nse<span class="sc">$</span>data</span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>contrib <span class="ot">&lt;-</span> shap_nse<span class="sc">$</span>shap_contrib</span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>dat_g <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">educa_jefe =</span> data[, <span class="st">"educa_jefe"</span>], <span class="at">shap_educa =</span> contrib[, <span class="st">"educa_jefe"</span>],</span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a>                <span class="at">shap_ocupados =</span> contrib[, <span class="st">"ocupados"</span>], ) <span class="sc">%&gt;%</span> </span>
+<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sample_n</span>(<span class="dv">2000</span>)</span>
+<span id="cb48-6"><a href="#cb48-6" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(dat_g, <span class="fu">aes</span>(<span class="at">x =</span> educa_jefe, <span class="at">y =</span> shap_educa, <span class="at">colour =</span> shap_ocupados)) <span class="sc">+</span> </span>
+<span id="cb48-7"><a href="#cb48-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_jitter</span>(<span class="at">alpha =</span> <span class="fl">0.9</span>, <span class="at">width =</span> <span class="fl">0.5</span>, <span class="at">height =</span> <span class="dv">0</span>) <span class="sc">+</span></span>
+<span id="cb48-8"><a href="#cb48-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_color_gradient</span>(<span class="at">low=</span><span class="st">"orange"</span>, <span class="at">high=</span><span class="st">"black"</span>)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="14-interpretacion_files/figure-html/unnamed-chunk-39-1.png" class="img-fluid figure-img" width="768"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Y podemos ver predicciones individuales:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>graf_caso <span class="ot">&lt;-</span> <span class="cf">function</span>(data, contrib, ind_caso, pred_base){</span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>    dat_tbl <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">variable =</span> <span class="fu">colnames</span>(data), <span class="at">valor =</span> data[ind_caso, ], </span>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a>                      <span class="at">shap =</span> contrib[ind_caso,]) <span class="sc">%&gt;%</span> </span>
+<span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">unite</span>(<span class="st">"variable_valor"</span>, variable, valor) <span class="sc">%&gt;%</span> </span>
+<span id="cb49-5"><a href="#cb49-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">variable_valor =</span> <span class="fu">fct_reorder</span>(variable_valor, shap))</span>
+<span id="cb49-6"><a href="#cb49-6" aria-hidden="true" tabindex="-1"></a>    pred_logit <span class="ot">&lt;-</span> <span class="fu">log</span>(pred_base <span class="sc">/</span> (<span class="dv">1</span><span class="sc">-</span>pred_base))  <span class="sc">+</span> <span class="fu">sum</span>(dat_tbl<span class="sc">$</span>shap)</span>
+<span id="cb49-7"><a href="#cb49-7" aria-hidden="true" tabindex="-1"></a>    pred <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">+</span> <span class="fu">exp</span>(<span class="sc">-</span>pred_logit))</span>
+<span id="cb49-8"><a href="#cb49-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sprintf</span>(<span class="st">"Predicción base: %0.2f, Predicción: %0.2f"</span>,  pred_base, pred) <span class="sc">%&gt;%</span> print</span>
+<span id="cb49-9"><a href="#cb49-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggplot</span>(dat_tbl, <span class="fu">aes</span>(<span class="at">x=</span> variable_valor, <span class="at">y =</span> shap, <span class="at">ymax =</span> shap, <span class="at">ymin =</span> <span class="dv">0</span>)) <span class="sc">+</span> </span>
+<span id="cb49-10"><a href="#cb49-10" aria-hidden="true" tabindex="-1"></a>        <span class="fu">coord_flip</span>() <span class="sc">+</span><span class="fu">geom_point</span>() <span class="sc">+</span> <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">colour =</span> <span class="st">"gray"</span>) <span class="sc">+</span></span>
+<span id="cb49-11"><a href="#cb49-11" aria-hidden="true" tabindex="-1"></a>        <span class="fu">geom_linerange</span>() </span>
+<span id="cb49-12"><a href="#cb49-12" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb49-13"><a href="#cb49-13" aria-hidden="true" tabindex="-1"></a><span class="fu">graf_caso</span>(data, contrib, <span class="dv">10</span>, pred_base)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Predicción base: 0.18, Predicción: 0.86"</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="14-interpretacion_files/figure-html/unnamed-chunk-40-1.png" class="img-fluid figure-img" width="480"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="fu">graf_caso</span>(data, contrib, <span class="dv">102</span>, pred_base)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Predicción base: 0.18, Predicción: 0.83"</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="14-interpretacion_files/figure-html/unnamed-chunk-41-1.png" class="img-fluid figure-img" width="480"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Discusión</strong>:</p>
+<ul>
+<li><p>Un valor de contribución que puede ser más apropiado para los valores Shapley es condicionando en cada caso a la información que se tiene durante el proceso de adición de variables. Es decir, usamos <span class="math display">\[v(S) = E_{X_C|X_S}\left [ f(X_S,X_C) \,  | \, X_S = x_s^* \right].\]</span> Esta cantidad es teóricamente más apropiada para hacer predicciones cuando “no tenemos” las variables de <span class="math inline">\(X_C\)</span>. Sin embargo, calcular esta cantidad es considerablemente difícil, pues requiere modelar también la conjunta de <span class="math inline">\((X_1,\ldots, X_p)\)</span>, lo cuál en general es difícil. Hasta en regresión lineal, incluso sin interacciones, no es trivial hacer estos cálculos. Generalmente se utilizan como mostramos arriba. Una desventaja clara del proceso como lo mostramos arriba es que puede ser que al hacer estos promedios, usemos partes del modelo con poca información y malas predicciones. Los valores de Shapley pueden ser ruidosos en este caso.</p></li>
+<li><p>Los que mostramos arriba son llamados comunmente valores SHAP o explicación aditiva de Shapley. Existen muchas variaciones de la aplicación de valores de Shapley para entender predictores y es un tema de investigación activo.</p></li>
+</ul>
 
 
 <div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list" style="display: none">
