@@ -1,0 +1,167 @@
+---
+title: "Preprocesamiento y ajuste y validación predictiva"
+format: html
+---
+
+En este ejemplo mostramos por qué es necesario
+considerar el paso de preprocesamiento como parte de la construcción
+de un modelo predictivo, y que en general 
+*es necesario construir el preprocesamiento usando el conjunto de entrenamiento*.
+Este caso es uno relativamente extremo, pero ilustra el riesgo en la validación
+si utilizamos todos los datos para entrenar el preprocesamiento antes de
+construir el modelo.
+
+
+```{r}
+#| message: false
+library(tidyverse)
+library(tidymodels)
+```
+
+
+## Datos simulados
+
+
+En nuestro caso usaremos datos sintéticos, donde $y$ es independiente de las $x$'s,
+de forma que **no** pueden ayudarnos a hacer predicciones.
+
+
+```{r}
+set.seed(522127)
+simular_datos <- function(n = 550, n_col = 1000){
+  n_col <- 1000
+  x_todos <- rnorm(550 * n_col, 0, 1) |> matrix(550, n_col)
+  colnames(x_todos) <- paste0("x", 1:n_col)
+  # y es independiente de las x's:
+  # ceros y unos con probabilidad 0.5:
+  y_todos <- rbinom(550, 1, 0.5)
+  datos <- as_tibble(x_todos) |> 
+  mutate(y = factor(y_todos))
+}
+datos_sim <- simular_datos(n = 550, n_col = 1000)
+datos_sim |> count(y)
+```
+
+**Pregunta 1**: ¿cuál crees que debería ser el desempeño predictivo de cualquier predictor
+que construyéramos con estos datos, considerando que las $x$'s son independientes de
+la $y$?
+
+
+## Selección de variables
+
+Usaremos sólo 50 casos para construir nuestros modelos y hacer la validación
+(es un ejemplo extremos, puedes experimentar con este valor)
+
+```{r}
+# tomamos solo 50 casos
+datos <- datos_sim[1:50, ]
+```
+
+Supongamos que proponemos la siguiente estrategia para construir nuestro modelo:
+
+1. Seleccionamos las 10 variables con alta correlación con la respuesta $y$. Por ejemplo 
+al menos 0.25.
+2. Hacemos regresión logística para predecir $y$ en función de las $x$ seleccionadas.
+
+Este esquema es aceptable, aunque existen mejores métodos de selección de
+variables (ver por ejemplo http://www.feat.engineering/goals-of-feature-selection).
+
+Decidimos entonces seleccionar solamente
+las 10 variables que más correlacionadas con $y$:
+
+```{r}
+x  <- datos |> select(-y) |> as.matrix()
+y <- as.numeric(datos$y == 1)
+correlaciones <- cor(x, y) |> 
+  as.numeric()
+seleccionadas <- which(correlaciones > 0.25)
+correlaciones[seleccionadas] |> round(2)
+```
+
+Y esta es la tabla con las variables seleccionadas:
+
+```{r}
+datos_selec <- as_tibble(x[, seleccionadas]) |> 
+  mutate(y = factor(y))
+datos_selec
+```
+
+
+
+## Manera incorrecta de hacer validación cruzada
+
+Una vez que seleccionamos las variables hacemos validación cruzada con
+un modelo lineal (nota: esto es un error!)
+
+```{r}
+set.seed(8813)
+vc_particion <- vfold_cv(datos_selec, v = 10)
+modelo_lineal <- logistic_reg(engine = "glmnet", penalty = 0.0001) 
+flujo_incorrecto <- workflow() |> add_model(modelo_lineal) |> 
+  add_formula(y ~ .)
+resultados <- fit_resamples(flujo_incorrecto, 
+      resamples = vc_particion, metrics = metric_set(accuracy, roc_auc)) |> 
+  collect_metrics()
+resultados
+```
+El modelo parece tener buen desempeño. Sin embargo, esta validación cruzada está
+hecha de manera incorrecta, como veremos a continuación.
+
+**Pregunta 2**: contrasta con la pregunta 1 para explicar por qué esta estimación 
+es mala y potencialmente engañosa.
+
+## Manera correcta de hacer validación cruzada
+
+**Si incluimos la selección de variables en la receta, entonces en cada corte
+de validación cruzada seleccionamos las variables que tienen correlación más alta**:
+
+```{r, warning = FALSE, message = FALSE}
+set.seed(8813)
+vc_particion_comp <- vfold_cv(datos, v = 10)
+receta_x <- recipe(y ~ ., data = datos) |> 
+  step_corr(all_predictors(), threshold = 0.25)
+flujo_correcto <- workflow() |> 
+  add_recipe(receta_x) |> 
+  add_model(modelo_lineal) 
+resultados <- fit_resamples(flujo_correcto, 
+    resamples = vc_particion_comp, metrics = metric_set(accuracy, roc_auc)) |> 
+  collect_metrics()
+resultados
+```
+
+Vemos que el auc es cercano a 0.5 (equivalente a predecir al azar), y la tasa
+de correctos es cercana a 0.5 también. Esto es muy diferente al ejemplo donde
+hicimos incorrectamente la validación cruzada.
+
+
+**Pregunta 3**: Explica cuál es el problema de la validación cruzada que hicimos
+en primer lugar, y por qué esta segunda versión es la correcta. ¿Se seleccionan las
+mismas variables con todos los datos que en cada vuelta de validación cruzada?
+¿Cómo puedes asegurar que la validación cruzada que hagas (o validación con una muestra)
+está hecha correctamente?
+
+**Pregunta 4** (opcional) Verifica que el problema no es por tener una muestra
+de entrenamiento chica (repite con distintos datos simulados iniciales, y observa que
+en general tenemos el mismo comportamiento).
+
+## Con muestra de prueba
+
+Podemos verificar que el procedimento correcto es el segundo, probando el
+modelo que ajustamos inicialmente con una muestra de prueba. 
+
+```{r}
+# datos solo incluye reglones de 1 a 50
+ajuste_1 <- fit(flujo_incorrecto, datos)
+# probamos con el resto: de 51 a 550:
+predict(ajuste_1, datos_sim[ 51:550, ], type = "prob") |> 
+  mutate(y = datos_sim$y[51:550]) |> 
+  roc_auc(y, .pred_1)
+```
+
+
+
+
+
+
+
+
