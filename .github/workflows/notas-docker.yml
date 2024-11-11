@@ -14,6 +14,12 @@ jobs:
     runs-on: ubuntu-latest
     container: felipexgonzalez/am-2024-amd64:latest
     steps:
+      - name: install rsync
+        run: |
+          apt update && apt install -y rsync
+      - name: install git-lfs
+        run: |
+          apt-get update && apt-get install git-lfs
       - name: Checkout 🛎️
         uses: actions/checkout@v4
         with:
@@ -42,9 +48,6 @@ jobs:
         # Add any command line argument needed
         run: |
           quarto render notas/ --to html
-      - name: install rsync
-        run: |
-          apt update && apt install -y rsync
       - name: Deploy 🚀
         # only deploy when push to main
         if: github.event_name != 'pull_request'
