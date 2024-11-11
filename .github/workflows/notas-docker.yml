@@ -22,7 +22,6 @@ jobs:
         run: |
           remotes::install_github("https://github.com/tidymodels/probably/", upgrade = "always", force = TRUE)
         shell: Rscript {0}
-      - uses: actions/checkout@v4
       - name: Install discrim
         run: |
           install.packages("discrim")
